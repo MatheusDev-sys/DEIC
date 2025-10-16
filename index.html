@@ -92,7 +92,7 @@
     <header id="header" class="bg-slate-950/80 backdrop-blur-sm sticky top-0 z-50 border-b border-slate-800">
         <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
             <a href="#" class="flex items-center space-x-3">
-                <img src="logodeic.png" alt="Logo DEIC" class="h-14 w-14">
+                <img src="logodeic.jpg" alt="Logo DEIC" class="h-14 w-14 rounded-full object-cover border-2 border-slate-700">
                 <span class="text-xl font-bold text-white">DEIC</span>
             </a>
             <div id="nav-links" class="hidden md:flex items-center space-x-8">
@@ -964,7 +964,9 @@
                     const { error } = await supabase.auth.signOut();
                     if (!error) {
                         currentUserRole = null;
+                        await updateUserUI();
                         window.location.hash = '#';
+                        handleRouteChange(); // Força a verificação da rota após o logout
                     }
                 }
                 if (e.target.id === 'generate-token-btn') {
@@ -1009,27 +1011,20 @@
             window.addEventListener('hashchange', handleRouteChange);
             
             supabase.auth.onAuthStateChange(async (_event, session) => {
-                const isLoggedIn = !!session;
-                if (isLoggedIn) {
-                    await fetchUserRole(session.user.id);
-                } else {
+                if (_event === 'INITIAL_SESSION' || _event === 'SIGNED_IN' || _event === 'TOKEN_REFRESHED') {
+                    if (session) {
+                        await fetchUserRole(session.user.id);
+                    } else {
+                        currentUserRole = null;
+                        await updateUserUI();
+                    }
+                } else if (_event === 'SIGNED_OUT') {
                     currentUserRole = null;
                     await updateUserUI();
+                    window.location.hash = '#';
                 }
-                // Evita chamar o handleRouteChange duas vezes no logout
-                if (_event !== 'SIGNED_OUT') {
-                    await handleRouteChange();
-                }
+                await handleRouteChange();
             });
-
-            // Inicialização
-            const { data: { session } } = await supabase.auth.getSession();
-            if(session) {
-                await fetchUserRole(session.user.id);
-            } else {
-                await updateUserUI();
-            }
-            await handleRouteChange();
         });
     </script>
 </body>
