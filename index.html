@@ -79,6 +79,11 @@
             border-color: var(--primary-blue);
             background-color: rgba(14, 165, 233, 0.1);
         }
+        /* Estilo para Abas do Painel Admin */
+        .tab-button.active {
+            background-color: var(--primary-blue);
+            color: white;
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -253,37 +258,51 @@
     <section id="page-admin" class="hidden container mx-auto px-6 py-16 fade-in">
         <h1 class="text-4xl font-black text-white mb-8">Painel Administrativo</h1>
         
-        <!-- Seção de Relatórios de Inteligência -->
-        <div id="intelligence-reports-section" class="mb-12">
-            <h2 class="text-2xl font-bold text-sky-400 mb-4">Relatórios de Inteligência</h2>
-            <div id="intelligence-reports-container" class="space-y-4">
-                <!-- Relatórios de Inteligência serão carregados aqui -->
-                <p class="text-slate-400">Carregando relatórios...</p>
-            </div>
-        </div>
-        
-        <!-- Seção de Denúncias -->
-        <div class="mb-12">
-            <h2 class="text-2xl font-bold text-sky-400 mb-4">Denúncias Recebidas</h2>
-            <div id="reports-container" class="space-y-4">
-                <!-- Denúncias serão carregadas aqui -->
-                <p class="text-slate-400">Carregando denúncias...</p>
-            </div>
+        <!-- Abas de Navegação -->
+        <div id="admin-tabs" class="flex border-b border-slate-700 mb-8">
+            <button data-tab="reports" class="tab-button px-4 py-2 text-slate-400 hover:text-white transition active">Relatórios de Inteligência</button>
+            <button data-tab="denuncias" class="tab-button px-4 py-2 text-slate-400 hover:text-white transition">Denúncias Recebidas</button>
+            <button data-tab="users" id="user-management-tab" class="tab-button px-4 py-2 text-slate-400 hover:text-white transition hidden">Gerenciamento de Usuários</button>
+            <button data-tab="tokens" id="token-generation-tab" class="tab-button px-4 py-2 text-slate-400 hover:text-white transition hidden">Gerenciamento de Acesso</button>
         </div>
 
-        <!-- Seção de Geração de Token (visibilidade controlada por JS) -->
-        <div id="token-generation-section" class="hidden">
-            <h2 class="text-2xl font-bold text-sky-400 mb-4">Gerenciamento de Acesso</h2>
-            <div class="card p-6 max-w-lg">
-                <h3 class="font-bold text-white mb-2">Gerar Novo Token de Registro</h3>
-                <p class="text-slate-400 text-sm mb-4">Gere um token de uso único para registrar um novo oficial no sistema.</p>
-                <button id="generate-token-btn" class="bg-slate-700 text-slate-200 font-bold py-3 px-8 rounded-lg hover:bg-slate-600 transition-all duration-300 ease-in-out">Gerar Token</button>
-                <div id="token-display" class="mt-4 hidden">
-                    <p class="text-slate-300">Token gerado:</p>
-                    <input type="text" id="new-token-input" readonly class="bg-slate-800 border border-slate-600 rounded-lg p-2 w-full mt-1 text-green-400 font-mono">
-                    <button id="copy-token-btn" class="mt-2 text-sm text-sky-400 hover:underline">Copiar</button>
+        <!-- Conteúdo das Abas -->
+        <div id="admin-tab-content">
+            <!-- Seção de Relatórios de Inteligência -->
+            <div id="tab-content-reports" class="tab-content">
+                <div id="intelligence-reports-container" class="space-y-4">
+                    <!-- Relatórios de Inteligência serão carregados aqui -->
                 </div>
-                <div id="token-feedback" class="text-sm mt-2" aria-live="polite"></div>
+            </div>
+            
+            <!-- Seção de Denúncias -->
+            <div id="tab-content-denuncias" class="tab-content hidden">
+                <div id="reports-container" class="space-y-4">
+                    <!-- Denúncias serão carregadas aqui -->
+                </div>
+            </div>
+
+            <!-- Seção de Gerenciamento de Usuários -->
+            <div id="tab-content-users" class="tab-content hidden">
+                <div id="user-list-container" class="space-y-4">
+                    <!-- Lista de usuários será carregada aqui -->
+                </div>
+                <div id="user-management-feedback" class="hidden mt-4 text-center px-4 py-2 rounded-lg text-sm" aria-live="polite"></div>
+            </div>
+
+            <!-- Seção de Geração de Token -->
+            <div id="tab-content-tokens" class="tab-content hidden">
+                <div class="card p-6 max-w-lg">
+                    <h3 class="font-bold text-white mb-2">Gerar Novo Token de Registro</h3>
+                    <p class="text-slate-400 text-sm mb-4">Gere um token de uso único para registrar um novo oficial no sistema.</p>
+                    <button id="generate-token-btn" class="bg-slate-700 text-slate-200 font-bold py-3 px-8 rounded-lg hover:bg-slate-600 transition-all duration-300 ease-in-out">Gerar Token</button>
+                    <div id="token-display" class="mt-4 hidden">
+                        <p class="text-slate-300">Token gerado:</p>
+                        <input type="text" id="new-token-input" readonly class="bg-slate-800 border border-slate-600 rounded-lg p-2 w-full mt-1 text-green-400 font-mono">
+                        <button id="copy-token-btn" class="mt-2 text-sm text-sky-400 hover:underline">Copiar</button>
+                    </div>
+                    <div id="token-feedback" class="text-sm mt-2" aria-live="polite"></div>
+                </div>
             </div>
         </div>
     </section>
@@ -303,11 +322,11 @@
                         <textarea required id="report-description" rows="8" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
                     </div>
                     <div class="mb-6">
-                        <label class="block text-slate-400 mb-2">Anexar Imagem</label>
+                        <label class="block text-slate-400 mb-2">Anexar Imagem(ns)</label>
                         <div id="drop-zone" class="drop-zone rounded-lg p-8 text-center cursor-pointer">
-                            <input type="file" id="report-image-input" class="hidden" accept="image/png, image/jpeg, image/gif">
-                            <p id="drop-zone-text" class="text-slate-500">Arraste e solte uma imagem aqui, ou clique para selecionar.</p>
-                            <img id="image-preview" src="" alt="Pré-visualização da imagem" class="hidden max-h-48 mx-auto mt-4 rounded-md">
+                            <input type="file" id="report-image-input" class="hidden" accept="image/png, image/jpeg, image/gif" multiple>
+                            <p id="drop-zone-text" class="text-slate-500">Arraste e solte uma ou mais imagens aqui, ou clique para selecionar.</p>
+                            <div id="image-preview-container" class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"></div>
                         </div>
                     </div>
                     <button type="submit" class="bg-sky-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-sky-600 transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg shadow-sky-500/20 w-full">Enviar Relatório</button>
@@ -419,11 +438,10 @@
         </div>
     </footer>
     
-    <script type="module">
+    <script>
         // --- CONFIGURAÇÃO DO SUPABASE ---
         const supabaseUrl = 'https://lscokjdqmruajhwwlfqr.supabase.co';
         const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxzY29ramRxbXJ1YWpod3dsZnFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1ODM2MDAsImV4cCI6MjA3NjE1OTYwMH0.J7lBcK5L6sH9QfbCneIQfd2TrEIAlyasQJkS1LVzSkA';
-
         const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
 
         // --- ELEMENTOS DO DOM ---
@@ -441,7 +459,7 @@
         const penalCodeModal = document.getElementById('penal-code-modal');
 
         let currentUserRole = null;
-        let selectedFile = null;
+        let selectedFiles = [];
 
         // --- FUNÇÃO UTILITÁRIA ---
         const sanitizeHTML = (str) => {
@@ -456,41 +474,45 @@
             const hash = window.location.hash || '#';
             
             Object.values(pages).forEach(page => page && page.classList.add('hidden'));
-            window.scrollTo(0, 0);
+            
+            const mainPageAnchors = ['#about', '#divisions', '#study', '#report', '#careers'];
+            if (!mainPageAnchors.includes(hash)) {
+                window.scrollTo(0, 0);
+            }
 
-            let activePage = pages.main;
+            let activePageKey = 'main';
+            if (hash.startsWith('#login')) activePageKey = 'login';
+            else if (hash.startsWith('#register')) activePageKey = 'register';
+            else if (hash.startsWith('#admin')) activePageKey = 'admin';
+            else if (hash.startsWith('#relatorio')) activePageKey = 'relatorio';
+
             const { data: { session } } = await supabase.auth.getSession();
             const isLoggedIn = !!session;
 
             if (isLoggedIn && !currentUserRole) {
                 await fetchUserRole(session.user.id);
             }
-
-            if (hash.startsWith('#admin')) {
+            
+            if (activePageKey === 'admin') {
                 if (isLoggedIn) {
-                    activePage = pages.admin;
-                    loadAdminData();
+                    pages.admin.classList.remove('hidden');
+                    await loadAdminData();
                 } else {
                     window.location.hash = '#login';
-                    return; 
                 }
-            } else if (hash.startsWith('#relatorio')) {
-                 if (isLoggedIn && ['Developer', 'Admin', 'Oficial'].includes(currentUserRole)) {
-                    activePage = pages.relatorio;
+            } else if (activePageKey === 'relatorio') {
+                if (isLoggedIn && ['Developer', 'Admin', 'Oficial'].includes(currentUserRole)) {
+                    pages.relatorio.classList.remove('hidden');
                 } else if (isLoggedIn) {
-                    window.location.hash = '#'; // Volta para home se não tiver permissão
-                }
-                else {
+                    window.location.hash = '#';
+                    pages.main.classList.remove('hidden');
+                } else {
                     window.location.hash = '#login';
                 }
-            } else if (hash.startsWith('#login')) {
-                activePage = pages.login;
-            } else if (hash.startsWith('#register')) {
-                activePage = pages.register;
-            }
-            
-            if (activePage) {
-                activePage.classList.remove('hidden');
+            } else if (pages[activePageKey]) {
+                pages[activePageKey].classList.remove('hidden');
+            } else {
+                pages.main.classList.remove('hidden');
             }
         }
         
@@ -506,7 +528,7 @@
             } else {
                 currentUserRole = null;
             }
-            updateUserUI(); // Atualiza a UI depois de pegar o cargo
+            await updateUserUI(); 
         }
 
         // --- AUTENTICAÇÃO E UI ---
@@ -514,38 +536,35 @@
             const { data: { session } } = await supabase.auth.getSession();
             const isLoggedIn = !!session;
 
-            // Limpa o link de relatório para recriar se necessário
             const existingReportLink = document.getElementById('nav-report-link');
             if(existingReportLink) existingReportLink.remove();
 
             if (isLoggedIn) {
-                if(!currentUserRole && session?.user) await fetchUserRole(session.user.id);
+                 if(!currentUserRole && session?.user) await fetchUserRole(session.user.id);
                 
                 authLinks?.classList.add('hidden');
                 authLinks?.classList.remove('md:flex');
                 adminLinks?.classList.remove('hidden');
                 adminLinks?.classList.add('md:flex');
                 
-                // Mostra/Esconde seções do Admin Panel
-                const tokenSection = document.getElementById('token-generation-section');
-                const intelSection = document.getElementById('intelligence-reports-section');
+                const tokenTab = document.getElementById('token-generation-tab');
+                const userManagementTab = document.getElementById('user-management-tab');
+
                 if (['Developer', 'Admin'].includes(currentUserRole)) {
-                    tokenSection?.classList.remove('hidden');
+                    tokenTab?.classList.remove('hidden');
+                    userManagementTab?.classList.remove('hidden');
                 } else {
-                    tokenSection?.classList.add('hidden');
+                    tokenTab?.classList.add('hidden');
+                    userManagementTab?.classList.add('hidden');
                 }
 
                 if (['Developer', 'Admin', 'Oficial'].includes(currentUserRole)) {
-                    intelSection?.classList.remove('hidden');
-                    // Adiciona link para subir relatório
                     const reportLink = document.createElement('a');
                     reportLink.href = '#relatorio';
                     reportLink.id = 'nav-report-link';
                     reportLink.className = 'text-slate-300 hover:text-sky-400 transition';
                     reportLink.textContent = 'Subir Relatório';
                     document.getElementById('nav-links')?.children[2].insertAdjacentElement('afterend', reportLink);
-                } else {
-                    intelSection?.classList.add('hidden');
                 }
 
             } else {
@@ -556,7 +575,6 @@
                 adminLinks?.classList.remove('md:flex');
             }
 
-            // --- Lógica do Menu Mobile ---
             if(mobileMenu) mobileMenu.innerHTML = '';
             
             const baseLinks = document.querySelectorAll('#nav-links a');
@@ -591,72 +609,130 @@
         async function loadAdminData() {
             if (!['Developer', 'Admin', 'Oficial'].includes(currentUserRole)) return;
             
-            // Carregar Denúncias Anônimas
-            const reportsContainer = document.getElementById('reports-container');
-            if (!reportsContainer) return;
-            reportsContainer.innerHTML = '<p class="text-slate-400">Carregando denúncias...</p>';
+            if (['Developer', 'Admin'].includes(currentUserRole)) {
+                await loadUserManagementPanel();
+            }
             
-            const { data: reports, error } = await supabase
-                .from('denuncias')
-                .select('*')
-                .order('created_at', { ascending: false });
+            const reportsContainer = document.getElementById('reports-container');
+            if (reportsContainer) {
+                reportsContainer.innerHTML = '<p class="text-slate-400">Carregando denúncias...</p>';
+                const { data: reports, error } = await supabase
+                    .from('denuncias')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    reportsContainer.innerHTML = `<p class="text-red-400">Erro ao carregar denúncias: ${error.message}</p>`;
+                } else if (!reports || reports.length === 0) {
+                    reportsContainer.innerHTML = '<p class="text-slate-400">Nenhuma denúncia encontrada.</p>';
+                } else {
+                    reportsContainer.innerHTML = reports.map(report => `
+                        <div class="card p-4 rounded-lg">
+                            <div class="flex justify-between items-start flex-wrap gap-2">
+                                <div>
+                                    <h3 class="font-bold text-white">${sanitizeHTML(report.tipo_crime)}</h3>
+                                    <p class="text-sm text-sky-400 font-mono">${sanitizeHTML(report.localizacao)}</p>
+                                </div>
+                                <span class="text-xs text-slate-500 flex-shrink-0">${new Date(report.created_at).toLocaleString('pt-BR')}</span>
+                            </div>
+                            <p class="mt-2 text-slate-300 bg-slate-800/50 p-3 rounded break-words">${sanitizeHTML(report.detalhes)}</p>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            const intelReportsContainer = document.getElementById('intelligence-reports-container');
+            if(intelReportsContainer) {
+                intelReportsContainer.innerHTML = '<p class="text-slate-400">Carregando relatórios de inteligência...</p>';
+
+                const { data: intelReports, error: intelError } = await supabase
+                    .from('relatorios')
+                    .select(`*, profiles ( email )`)
+                    .order('created_at', { ascending: false });
+
+                if(intelError){
+                    intelReportsContainer.innerHTML = `<p class="text-red-400">Erro ao carregar relatórios: ${intelError.message}</p>`;
+                } else if(!intelReports || intelReports.length === 0){
+                    intelReportsContainer.innerHTML = '<p class="text-slate-400">Nenhum relatório de inteligência encontrado.</p>';
+                } else {
+                    intelReportsContainer.innerHTML = intelReports.map(report => {
+                        const imagesHTML = (report.imagem_urls || []).map(url => `<img src="${url}" alt="Imagem do relatório" class="max-w-full h-auto rounded-md border border-slate-700">`).join('');
+                        return `
+                            <div class="card p-4 rounded-lg">
+                                <div class="flex justify-between items-start flex-wrap gap-2 mb-2">
+                                    <div>
+                                        <h3 class="font-bold text-white">${sanitizeHTML(report.titulo)}</h3>
+                                        <p class="text-xs text-slate-400">Enviado por: ${report.profiles ? sanitizeHTML(report.profiles.email) : 'Desconhecido'}</p>
+                                    </div>
+                                    <span class="text-xs text-slate-500 flex-shrink-0">${new Date(report.created_at).toLocaleString('pt-BR')}</span>
+                                </div>
+                                <p class="text-slate-300 text-sm mb-4">${sanitizeHTML(report.descricao)}</p>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-4">${imagesHTML}</div>
+                            </div>
+                        `;
+                    }).join('');
+                }
+            }
+        }
+        
+        async function loadUserManagementPanel() {
+            const userListContainer = document.getElementById('user-list-container');
+            if(!userListContainer) return;
+
+            userListContainer.innerHTML = '<p class="text-slate-400">Carregando usuários...</p>';
+
+            const { data: roles, error: rolesError } = await supabase.from('roles').select('*');
+            if (rolesError) {
+                userListContainer.innerHTML = `<p class="text-red-400">Erro ao carregar cargos.</p>`;
+                return;
+            }
+
+            const { data: profiles, error: profilesError } = await supabase.from('profiles').select('id, email, role_id');
+            if (profilesError) {
+                 userListContainer.innerHTML = `<p class="text-red-400">Erro ao carregar usuários.</p>`;
+                return;
+            }
+
+            if (!profiles || profiles.length === 0) {
+                userListContainer.innerHTML = '<p class="text-slate-400">Nenhum usuário encontrado.</p>';
+            } else {
+                userListContainer.innerHTML = profiles.map(profile => {
+                    const isDeveloper = profile.role_id === 1;
+                    const options = roles
+                        .filter(role => currentUserRole === 'Developer' || role.id !== 1)
+                        .map(role => `<option value="${role.id}" ${profile.role_id === role.id ? 'selected' : ''}>${role.name}</option>`)
+                        .join('');
+
+                    return `
+                        <div class="card p-4 rounded-lg flex justify-between items-center">
+                            <p class="text-slate-300">${sanitizeHTML(profile.email)}</p>
+                            <select data-user-id="${profile.id}" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white" ${isDeveloper && currentUserRole !== 'Developer' ? 'disabled' : ''}>
+                                ${options}
+                            </select>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+        
+        async function updateUserRole(userId, newRoleId) {
+            const feedbackEl = document.getElementById('user-management-feedback');
+            feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-yellow-400 bg-yellow-900/50 block';
+            feedbackEl.textContent = 'Atualizando cargo...';
+
+            const { error } = await supabase
+                .from('profiles')
+                .update({ role_id: newRoleId })
+                .eq('id', userId);
 
             if (error) {
-                reportsContainer.innerHTML = `<p class="text-red-400">Erro ao carregar denúncias. ${error.message}</p>`;
-                return;
-            }
-            
-            if (!reports || reports.length === 0) {
-                reportsContainer.innerHTML = '<p class="text-slate-400">Nenhuma denúncia encontrada.</p>';
+                feedbackEl.textContent = `Erro ao atualizar cargo: ${error.message}`;
+                feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
             } else {
-                reportsContainer.innerHTML = reports.map(report => `
-                    <div class="card p-4 rounded-lg">
-                        <div class="flex justify-between items-start flex-wrap gap-2">
-                            <div>
-                                <h3 class="font-bold text-white">${sanitizeHTML(report.tipo_crime)}</h3>
-                                <p class="text-sm text-sky-400 font-mono">${sanitizeHTML(report.localizacao)}</p>
-                            </div>
-                            <span class="text-xs text-slate-500 flex-shrink-0">${new Date(report.created_at).toLocaleString('pt-BR')}</span>
-                        </div>
-                        <p class="mt-2 text-slate-300 bg-slate-800/50 p-3 rounded break-words">${sanitizeHTML(report.detalhes)}</p>
-                    </div>
-                `).join('');
+                feedbackEl.textContent = 'Cargo atualizado com sucesso!';
+                feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-green-400 bg-green-900/50 block';
             }
-
-            // Carregar Relatórios de Inteligência
-            const intelReportsContainer = document.getElementById('intelligence-reports-container');
-            if(!intelReportsContainer) return;
-            intelReportsContainer.innerHTML = '<p class="text-slate-400">Carregando relatórios de inteligência...</p>';
-
-            const { data: intelReports, error: intelError } = await supabase
-                .from('relatorios')
-                .select(`
-                    *,
-                    profiles ( email )
-                `)
-                .order('created_at', { ascending: false });
-
-            if(intelError){
-                intelReportsContainer.innerHTML = `<p class="text-red-400">Erro ao carregar relatórios. ${intelError.message}</p>`;
-                return;
-            }
-            if(!intelReports || intelReports.length === 0){
-                intelReportsContainer.innerHTML = '<p class="text-slate-400">Nenhum relatório de inteligência encontrado.</p>';
-            } else {
-                intelReportsContainer.innerHTML = intelReports.map(report => `
-                    <div class="card p-4 rounded-lg">
-                        <div class="flex justify-between items-start flex-wrap gap-2 mb-2">
-                            <div>
-                                <h3 class="font-bold text-white">${sanitizeHTML(report.titulo)}</h3>
-                                <p class="text-xs text-slate-400">Enviado por: ${sanitizeHTML(report.profiles.email)}</p>
-                            </div>
-                            <span class="text-xs text-slate-500 flex-shrink-0">${new Date(report.created_at).toLocaleString('pt-BR')}</span>
-                        </div>
-                        <p class="text-slate-300 text-sm mb-4">${sanitizeHTML(report.descricao)}</p>
-                        ${report.imagem_url ? `<img src="${report.imagem_url}" alt="Imagem do relatório" class="max-w-full h-auto rounded-md border border-slate-700">` : ''}
-                    </div>
-                `).join('');
-            }
+            setTimeout(() => { feedbackEl.classList.add('hidden'); }, 3000);
         }
 
         async function handleGenerateToken() {
@@ -682,26 +758,31 @@
             }
         }
         
-        function handleFileSelect(file) {
-            if (file && file.type.startsWith('image/')) {
-                selectedFile = file;
-                const preview = document.getElementById('image-preview');
-                const dropZoneText = document.getElementById('drop-zone-text');
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    preview.src = e.target.result;
-                    preview.classList.remove('hidden');
-                    dropZoneText.classList.add('hidden');
-                };
-                reader.readAsDataURL(file);
+        function handleFileSelect(files) {
+            selectedFiles = Array.from(files);
+            const previewContainer = document.getElementById('image-preview-container');
+            const dropZoneText = document.getElementById('drop-zone-text');
+            previewContainer.innerHTML = ''; 
+
+            if (selectedFiles.length > 0) {
+                dropZoneText.classList.add('hidden');
+                selectedFiles.forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.className = "w-full h-24 object-cover rounded-md";
+                            previewContainer.appendChild(img);
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
             } else {
-                alert("Por favor, selecione um arquivo de imagem válido (png, jpg, gif).");
-                selectedFile = null;
+                dropZoneText.classList.remove('hidden');
             }
         }
 
-
-        // --- EVENT LISTENERS ---
         document.addEventListener('DOMContentLoaded', async () => {
             header.addEventListener('click', (e) => {
                 const menuBtn = e.target.closest('#menu-btn');
@@ -787,8 +868,8 @@
                     const feedbackEl = document.getElementById('intel-report-feedback');
                     const { data: { user } } = await supabase.auth.getUser();
                     
-                    if (!selectedFile) {
-                        feedbackEl.textContent = 'Por favor, anexe uma imagem.';
+                    if (selectedFiles.length === 0) {
+                        feedbackEl.textContent = 'Por favor, anexe pelo menos uma imagem.';
                         feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
                         return;
                     }
@@ -801,33 +882,29 @@
                     feedbackEl.textContent = 'Enviando relatório...';
                     feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-yellow-400 bg-yellow-900/50 block';
                     
-                    const filePath = `${user.id}/${Date.now()}_${selectedFile.name}`;
-                    
-                    const { error: uploadError } = await supabase.storage
-                        .from('relatorios')
-                        .upload(filePath, selectedFile);
-                        
-                    if(uploadError) {
-                        feedbackEl.textContent = 'Erro no upload da imagem: ' + uploadError.message;
-                        feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
-                        return;
-                    }
-                    
-                    const { data: urlData } = supabase.storage
-                        .from('relatorios')
-                        .getPublicUrl(filePath);
+                    const uploadPromises = selectedFiles.map(file => {
+                        const filePath = `${user.id}/${Date.now()}_${file.name}`;
+                        return supabase.storage.from('relatorios').upload(filePath, file);
+                    });
 
-                    const publicURL = urlData ? urlData.publicUrl : null;
-                    if(!publicURL){
-                        feedbackEl.textContent = 'Erro ao obter URL da imagem.';
+                    const uploadResults = await Promise.all(uploadPromises);
+
+                    const uploadErrors = uploadResults.filter(result => result.error);
+                    if (uploadErrors.length > 0) {
+                        feedbackEl.textContent = `Erro no upload de ${uploadErrors.length} imagem(ns).`;
                         feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
                         return;
                     }
 
+                    const imageUrls = uploadResults.map(result => {
+                         const { data: { publicUrl } } = supabase.storage.from('relatorios').getPublicUrl(result.data.path);
+                         return publicUrl;
+                    });
+                    
                     const { error: insertError } = await supabase.from('relatorios').insert({
                         titulo: title,
                         descricao: description,
-                        imagem_url: publicURL,
+                        imagem_urls: imageUrls,
                         user_id: user.id
                     });
 
@@ -838,21 +915,30 @@
                         feedbackEl.textContent = 'Relatório enviado com sucesso!';
                         feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-green-400 bg-green-900/50 block';
                         e.target.reset();
-                        document.getElementById('image-preview').classList.add('hidden');
+                        document.getElementById('image-preview-container').innerHTML = '';
                         document.getElementById('drop-zone-text').classList.remove('hidden');
-                        selectedFile = null;
+                        selectedFiles = [];
                         setTimeout(() => window.location.hash = '#admin', 2000);
                     }
                 }
             });
+            const userListContainer = document.getElementById('user-list-container');
+            if (userListContainer) {
+                userListContainer.addEventListener('change', async (e) => {
+                    if (e.target.tagName === 'SELECT') {
+                        const userId = e.target.dataset.userId;
+                        const newRoleId = e.target.value;
+                        await updateUserRole(userId, newRoleId);
+                    }
+                });
+            }
 
-            // --- Lógica de Drag and Drop ---
             const dropZone = document.getElementById('drop-zone');
             const fileInput = document.getElementById('report-image-input');
             
             if(dropZone) {
                 dropZone.addEventListener('click', () => fileInput.click());
-                fileInput.addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
+                fileInput.addEventListener('change', (e) => handleFileSelect(e.target.files));
                 
                 ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
                     dropZone.addEventListener(eventName, (e) => {
@@ -869,7 +955,7 @@
                     dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'));
                 });
 
-                dropZone.addEventListener('drop', (e) => handleFileSelect(e.dataTransfer.files[0]));
+                dropZone.addEventListener('drop', (e) => handleFileSelect(e.dataTransfer.files));
             }
 
 
@@ -905,16 +991,32 @@
                 }
             });
 
+            const adminTabs = document.getElementById('admin-tabs');
+            if(adminTabs) {
+                 adminTabs.addEventListener('click', (e) => {
+                    if (e.target.tagName === 'BUTTON') {
+                        const tab = e.target.dataset.tab;
+                        
+                        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                        e.target.classList.add('active');
+
+                        document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+                        document.getElementById(`tab-content-${tab}`)?.classList.remove('hidden');
+                    }
+                });
+            }
+
             window.addEventListener('hashchange', handleRouteChange);
             
             supabase.auth.onAuthStateChange(async (_event, session) => {
-                if (session) {
+                const isLoggedIn = !!session;
+                if (isLoggedIn) {
                     await fetchUserRole(session.user.id);
                 } else {
                     currentUserRole = null;
-                    updateUserUI();
+                    await updateUserUI();
                 }
-                handleRouteChange();
+                await handleRouteChange();
             });
 
             // Inicialização
@@ -922,12 +1024,10 @@
             if(session) {
                 await fetchUserRole(session.user.id);
             } else {
-                updateUserUI();
+                await updateUserUI();
             }
-            
-            handleRouteChange();
+            await handleRouteChange();
         });
     </script>
 </body>
 </html>
-
