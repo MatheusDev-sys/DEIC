@@ -8,256 +8,926 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        :root {
+            --primary-blue: #0ea5e9; /* sky-500 */
+            --dark-bg: #020617; /* slate-950 */
+            --card-bg: rgba(15, 23, 42, 0.5); /* slate-900 com 50% de opacidade */
+            --border-color: rgba(51, 65, 85, 0.5); /* slate-700 com 50% */
+        }
+        html {
+            scroll-behavior: smooth;
+        }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0a0a0a;
-            color: #e5e7eb;
+            background-color: var(--dark-bg);
+            color: #e2e8f0; /* slate-200 */
         }
         .hero-bg {
-            background-color: #0a0a0a;
-            background-image: linear-gradient(to bottom, rgba(10, 10, 10, 0.9), rgba(10, 10, 10, 1)), url('https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop'); /* Fundo genérico para dar um tom */
+            background-color: var(--dark-bg);
+            background-image: 
+                radial-gradient(circle at top, rgba(14, 165, 233, 0.1), transparent 40%),
+                linear-gradient(to bottom, rgba(2, 6, 23, 0.5), var(--dark-bg) 90%), 
+                url('https://images.unsplash.com/photo-1576495199011-518331d82144?q=80&w=2070&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
+            background-attachment: fixed;
         }
         .card {
-            background-color: rgba(31, 41, 55, 0.3); /* bg-gray-800 com transparência */
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease-in-out;
         }
-        .btn-primary {
-            @apply bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 transition-all duration-300 ease-in-out transform hover:scale-105;
+        .card:hover {
+            border-color: var(--primary-blue);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(14, 165, 233, 0.1);
         }
-        .btn-secondary {
-            @apply bg-gray-700 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600 transition-all duration-300 ease-in-out;
+        /* Animações */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .section-title {
-            @apply text-4xl font-black text-center mb-2 text-white;
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
         }
-        .section-subtitle {
-            @apply text-center text-gray-400 mb-12 max-w-2xl mx-auto;
+        /* Scrollbar customizada para o modal */
+        .modal-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .modal-scrollbar::-webkit-scrollbar-track {
+            background: #1e293b; /* slate-800 */
+            border-radius: 10px;
+        }
+        .modal-scrollbar::-webkit-scrollbar-thumb {
+            background: #334155; /* slate-700 */
+            border-radius: 10px;
+        }
+        .modal-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #475569; /* slate-600 */
+        }
+        /* Estilo para área de Drag and Drop */
+        .drop-zone {
+            border: 2px dashed var(--border-color);
+            transition: all 0.3s ease;
+        }
+        .drop-zone.dragover {
+            border-color: var(--primary-blue);
+            background-color: rgba(14, 165, 233, 0.1);
         }
     </style>
 </head>
 <body class="antialiased">
 
     <!-- Cabeçalho -->
-    <header id="home" class="bg-black/80 backdrop-blur-sm sticky top-0 z-50 border-b border-gray-800">
-        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="#home" class="flex items-center space-x-3">
-                <!-- Logo da DEIC - SVG criado para um visual profissional -->
-                <svg class="h-10 w-10 text-blue-500" xmlns="logodeic.png" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-3zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V13H5V6.3l7-3.11v9.8z"/>
-                </svg>
+    <header id="header" class="bg-slate-950/80 backdrop-blur-sm sticky top-0 z-50 border-b border-slate-800">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="#" class="flex items-center space-x-3">
+                <img src="logodeic.jpg" alt="Logo DEIC" class="h-14 w-14 rounded-full object-cover border-2 border-slate-700">
                 <span class="text-xl font-bold text-white">DEIC</span>
             </a>
-            <div class="hidden md:flex space-x-8">
-                <a href="#about" class="text-gray-300 hover:text-blue-400 transition">Sobre</a>
-                <a href="#divisions" class="text-gray-300 hover:text-blue-400 transition">Divisões</a>
-                <a href="#report" class="text-gray-300 hover:text-blue-400 transition">Denuncie</a>
-                <a href="#careers" class="text-gray-300 hover:text-blue-400 transition">Carreiras</a>
+            <div id="nav-links" class="hidden md:flex items-center space-x-8">
+                <a href="#about" class="text-slate-300 hover:text-sky-400 transition">Sobre</a>
+                <a href="#divisions" class="text-slate-300 hover:text-sky-400 transition">Divisões</a>
+                <a href="#study" class="text-slate-300 hover:text-sky-400 transition">Material de Estudos</a>
+                <!-- Link para Relatórios será inserido dinamicamente aqui -->
+                <a href="#report" class="text-slate-300 hover:text-sky-400 transition">Denuncie</a>
+                <a href="#careers" class="text-slate-300 hover:text-sky-400 transition">Carreiras</a>
             </div>
-            <a href="#report" class="hidden md:block bg-blue-600 text-white font-semibold px-4 py-2 rounded-md hover:bg-blue-700 transition">Denúncia Anônima</a>
-            <!-- Botão Hamburguer para Mobile -->
-            <button id="menu-btn" class="md:hidden block text-white">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            <!-- Os contêineres de links de autenticação começam ocultos e são gerenciados via JS -->
+            <div id="auth-links" class="hidden items-center space-x-4">
+                 <a href="#login" class="text-slate-300 hover:text-sky-400 transition">Login</a>
+                 <a href="#register" class="bg-sky-600 text-white font-semibold px-4 py-2 rounded-md hover:bg-sky-700 transition">Registro</a>
+            </div>
+             <div id="admin-links" class="hidden items-center space-x-4">
+                 <a href="#admin" class="text-sky-400 font-bold hover:text-sky-300 transition">Painel Admin</a>
+                 <button id="logout-button" class="bg-red-600 text-white font-semibold px-4 py-2 rounded-md hover:bg-red-700 transition">Sair</button>
+            </div>
+            <button id="menu-btn" class="md:hidden block text-white" aria-controls="mobile-menu" aria-expanded="false">
+                <span class="sr-only">Abrir menu</span>
+                <svg id="menu-icon-open" class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                <svg id="menu-icon-close" class="h-6 w-6 hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
         </nav>
-        <!-- Menu Mobile -->
         <div id="mobile-menu" class="hidden md:hidden px-6 pt-2 pb-4 space-y-2">
-            <a href="#about" class="block text-gray-300 hover:text-blue-400 transition">Sobre</a>
-            <a href="#divisions" class="block text-gray-300 hover:text-blue-400 transition">Divisões</a>
-            <a href="#report" class="block text-gray-300 hover:text-blue-400 transition">Denuncie</a>
-            <a href="#careers" class="block text-gray-300 hover:text-blue-400 transition">Carreiras</a>
+            <!-- Links serão injetados aqui via JS -->
         </div>
     </header>
 
-    <main>
-        <!-- Seção Hero -->
-        <section class="hero-bg min-h-screen flex items-center">
+    <!-- Conteúdo Principal do Site (Página Home) -->
+    <main id="page-main" class="fade-in">
+        <section class="hero-bg min-h-screen flex items-center justify-center">
             <div class="container mx-auto px-6 text-center">
-                <h1 class="text-5xl md:text-7xl font-black text-white leading-tight mb-4 animate-fade-in-down">
+                <h1 class="text-5xl md:text-7xl font-black text-white leading-tight mb-4">
                     Departamento Estadual de Investigações Criminais
                 </h1>
-                <p class="text-xl text-gray-300 mb-8 max-w-3xl mx-auto animate-fade-in-up">
+                <p class="text-xl text-slate-300 mb-8 max-w-3xl mx-auto">
                     Combatendo o crime organizado com inteligência e rigor para garantir a segurança da nossa cidade.
                 </p>
-                <div class="animate-fade-in-up delay-500">
-                    <a href="#report" class="btn-primary text-lg">Fazer uma Denúncia Anônima</a>
+                <div>
+                    <a href="#report" class="bg-sky-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-sky-600 transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg shadow-sky-500/20 text-lg">Fazer uma Denúncia Anônima</a>
                 </div>
             </div>
         </section>
 
-        <!-- Seção Sobre -->
-        <section id="about" class="py-20 bg-black">
+        <section id="about" class="py-24 bg-slate-950">
             <div class="container mx-auto px-6">
-                <h2 class="section-title">Sobre o DEIC</h2>
-                <p class="section-subtitle">
-                    Nossa missão, visão e valores que guiam cada operação e investigação.
-                </p>
+                <h2 class="text-4xl md:text-5xl font-black text-center mb-3 text-white">Nossa Missão</h2>
+                <p class="text-center text-slate-400 mb-12 max-w-2xl mx-auto">O DEIC é a subdivisão de elite da Polícia Civil, focada em desarticular organizações criminosas complexas.</p>
                 <div class="grid md:grid-cols-2 gap-12 items-center">
-                    <div>
-                        <img src="https://images.unsplash.com/photo-1622039601035-d16045d45464?q=80&w=1974&auto=format&fit=crop" alt="Equipe do DEIC em planejamento" class="rounded-lg shadow-2xl">
-                    </div>
-                    <div>
-                        <h3 class="text-3xl font-bold text-white mb-4">Nossa Missão</h3>
-                        <p class="text-gray-400 mb-6">
-                            O DEIC é a subdivisão de elite da Polícia Civil, focada em desarticular organizações criminosas complexas. Atuamos com base em inteligência, investigação aprofundada e operações estratégicas para neutralizar ameaças de alto nível que afetam a paz em nossa cidade.
-                        </p>
+                    <div class="order-2 md:order-1">
+                        <h3 class="text-3xl font-bold text-white mb-4">Inteligência. Precisão. Ação.</h3>
+                        <p class="text-slate-400 mb-6">Atuamos com base em inteligência, investigação aprofundada e operações estratégicas para neutralizar ameaças de alto nível que afetam a paz em nossa cidade. Nossos valores são a fundação de cada operação.</p>
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
-                            <div class="card p-4 rounded-lg">
-                                <h4 class="font-bold text-blue-400 text-lg">Integridade</h4>
-                                <p class="text-sm text-gray-300">Agimos com honestidade e ética.</p>
-                            </div>
-                            <div class="card p-4 rounded-lg">
-                                <h4 class="font-bold text-blue-400 text-lg">Justiça</h4>
-                                <p class="text-sm text-gray-300">Buscamos a verdade e a aplicação da lei.</p>
-                            </div>
-                            <div class="card p-4 rounded-lg">
-                                <h4 class="font-bold text-blue-400 text-lg">Coragem</h4>
-                                <p class="text-sm text-gray-300">Enfrentamos os desafios mais perigosos.</p>
-                            </div>
+                            <div class="card p-4 rounded-lg"><h4 class="font-bold text-sky-400 text-lg">Integridade</h4><p class="text-sm text-slate-300">Agimos com honestidade e ética.</p></div>
+                            <div class="card p-4 rounded-lg"><h4 class="font-bold text-sky-400 text-lg">Justiça</h4><p class="text-sm text-slate-300">Buscamos a verdade e a lei.</p></div>
+                            <div class="card p-4 rounded-lg"><h4 class="font-bold text-sky-400 text-lg">Coragem</h4><p class="text-sm text-slate-300">Enfrentamos o perigo de frente.</p></div>
                         </div>
+                    </div>
+                    <div class="order-1 md:order-2">
+                        <img src="https://images.unsplash.com/photo-1622039601035-d16045d45464?q=80&w=1974&auto=format&fit=crop" alt="Equipe do DEIC em planejamento" class="rounded-lg shadow-2xl shadow-slate-900/50">
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Seção Divisões -->
-        <section id="divisions" class="py-20" style="background-color: #0a0a0a;">
+        <section id="divisions" class="py-24 bg-slate-950/50">
+             <div class="container mx-auto px-6">
+                <h2 class="text-4xl md:text-5xl font-black text-center mb-3 text-white">Nossas Divisões</h2>
+                <p class="text-center text-slate-400 mb-12 max-w-2xl mx-auto">Cada divisão é altamente especializada para combater uma frente específica do crime organizado.</p>
+                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="card p-6 rounded-xl text-center"><h3 class="text-xl font-bold text-white mb-2">Anti-Sequestro (DAS)</h3><p class="text-slate-400 text-sm">Operações de resgate e negociação em situações de sequestro.</p></div>
+                    <div class="card p-6 rounded-xl text-center"><h3 class="text-xl font-bold text-white mb-2">Roubo a Bancos</h3><p class="text-slate-400 text-sm">Investigação e repressão a assaltos e roubos a instituições financeiras.</p></div>
+                    <div class="card p-6 rounded-xl text-center"><h3 class="text-xl font-bold text-white mb-2">Crimes Cibernéticos</h3><p class="text-slate-400 text-sm">Combate a fraudes, invasões e crimes realizados no ambiente digital.</p></div>
+                    <div class="card p-6 rounded-xl text-center"><h3 class="text-xl font-bold text-white mb-2">Narcóticos</h3><p class="text-slate-400 text-sm">Focada em desmantelar redes de tráfico de drogas em larga escala.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="study" class="py-24 bg-slate-950">
             <div class="container mx-auto px-6">
-                <h2 class="section-title">Nossas Divisões</h2>
-                <p class="section-subtitle">
-                    Unidades especializadas para combater cada tipo de crime com máxima eficiência.
-                </p>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <!-- Card Divisão -->
-                    <div class="card rounded-xl p-6 text-center transform hover:-translate-y-2 transition-transform duration-300">
-                        <div class="bg-blue-900/50 h-16 w-16 rounded-full mx-auto flex items-center justify-center mb-4">
-                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-300 h-8 w-8"><path d="m3.5 3.5 1.1 1.1"/><path d="m20.5 20.5-1.1-1.1"/><path d="m21 3-5 5"/><path d="m3 21 5-5"/><path d="m15 3-2 2"/><path d="m9 21 2-2"/><path d="m12 12 4.5 4.5"/><path d="m12 12-4.5-4.5"/><circle cx="12" cy="12" r="10"/></svg>
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-2">Divisão de Homicídios</h3>
-                        <p class="text-gray-400 text-sm">Investigação de crimes contra a vida e proteção de testemunhas.</p>
-                    </div>
-                    <!-- Card Divisão -->
-                    <div class="card rounded-xl p-6 text-center transform hover:-translate-y-2 transition-transform duration-300">
-                        <div class="bg-blue-900/50 h-16 w-16 rounded-full mx-auto flex items-center justify-center mb-4">
-                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-300 h-8 w-8"><path d="M17.5 22a2.5 2.5 0 0 1-2.5-2.5V18h-6v1.5a2.5 2.5 0 0 1-5 0V18a2.5 2.5 0 0 1 2.5-2.5h10A2.5 2.5 0 0 1 19 18v1.5a2.5 2.5 0 0 1-1.5 2.5Z"/><path d="M12 2C9.5 2 7.5 3.5 7.5 6v5.5a2.5 2.5 0 0 0 2.5 2.5h4a2.5 2.5 0 0 0 2.5-2.5V6c0-2.5-2-4-4.5-4Z"/></svg>
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-2">Divisão de Narcóticos</h3>
-                        <p class="text-gray-400 text-sm">Combate ao tráfico de drogas e desmantelamento de redes de distribuição.</p>
-                    </div>
-                    <!-- Card Divisão -->
-                    <div class="card rounded-xl p-6 text-center transform hover:-translate-y-2 transition-transform duration-300">
-                        <div class="bg-blue-900/50 h-16 w-16 rounded-full mx-auto flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-300 h-8 w-8"><path d="M20 17a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3.9a2 2 0 0 1-1.69-.9l-.8-1.2a2 2 0 0 0-1.6-1H10a2 2 0 0 0-1.6.9l-.8 1.2A2 2 0 0 1 6 7H2a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h1.5a1 1 0 0 1 1 1v1.5a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V18a1 1 0 0 1 1-1H20z"/><circle cx="12" cy="13" r="3"/></svg>
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-2">Divisão de Roubos</h3>
-                        <p class="text-gray-400 text-sm">Foco em roubos a bancos, cargas e grandes estabelecimentos.</p>
-                    </div>
-                    <!-- Card Divisão -->
-                    <div class="card rounded-xl p-6 text-center transform hover:-translate-y-2 transition-transform duration-300">
-                        <div class="bg-blue-900/50 h-16 w-16 rounded-full mx-auto flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-blue-300 h-8 w-8"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-2">Crimes Cibernéticos</h3>
-                        <p class="text-gray-400 text-sm">Investigação de fraudes online, invasões e crimes na deep web.</p>
-                    </div>
+                <h2 class="text-4xl md:text-5xl font-black text-center mb-3 text-white">Material de Estudos</h2>
+                <p class="text-center text-slate-400 mb-12 max-w-2xl mx-auto">Conhecimento é a nossa principal arma. Acesse aqui os materiais de treinamento e diretrizes operacionais.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="card p-6 rounded-xl"><h3 class="text-xl font-bold text-white mb-2">Manual de Abordagem</h3><p class="text-slate-400 text-sm">Procedimentos padrão para abordagens táticas e de rotina. Leitura obrigatória.</p><a href="#" class="text-sky-400 hover:text-sky-300 mt-4 inline-block">Acessar PDF &rarr;</a></div>
+                    <div class="card p-6 rounded-xl"><h3 class="text-xl font-bold text-white mb-2">Códigos Penais</h3><p class="text-slate-400 text-sm">Acesse a base de dados completa e atualizada dos códigos penais da cidade.</p><button id="open-penal-code-btn" class="text-sky-400 hover:text-sky-300 mt-4 inline-block">Consultar Artigos &rarr;</button></div>
+                    <div class="card p-6 rounded-xl"><h3 class="text-xl font-bold text-white mb-2">Relatórios de Inteligência</h3><p class="text-slate-400 text-sm">Análises e briefings sobre as atividades criminosas recentes. (Requer Acesso Nível 2)</p><a href="#admin" class="text-sky-400 hover:text-sky-300 mt-4 inline-block">Ver Relatórios &rarr;</a></div>
                 </div>
             </div>
         </section>
         
-        <!-- Seção Denúncia -->
-        <section id="report" class="py-20 bg-black">
+        <section id="report" class="py-24 bg-slate-950/50">
             <div class="container mx-auto px-6">
-                <h2 class="section-title">Canal de Denúncia</h2>
-                <p class="section-subtitle">
-                   Sua informação é crucial e será mantida em total sigilo. Ajude-nos a manter a cidade segura.
-                   <br><strong class="text-yellow-400">Este formulário é apenas para fins de Roleplay.</strong>
-                </p>
+                <h2 class="text-4xl md:text-5xl font-black text-center mb-3 text-white">Canal de Denúncia Anônima</h2>
+                <p class="text-center text-slate-400 mb-12 max-w-2xl mx-auto">Sua informação é crucial e será mantida em total sigilo. Ajude-nos a manter a cidade segura.<br><strong class="text-yellow-400">Este formulário é para fins de Roleplay.</strong></p>
                 <div class="max-w-3xl mx-auto card rounded-lg p-8">
                     <form id="report-form">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                            <input type="text" placeholder="Tipo de Crime (Ex: Tráfico, Homicídio)" class="bg-gray-900 border border-gray-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <input type="text" placeholder="Localização (Bairro, Rua, Ponto de Ref.)" class="bg-gray-900 border border-gray-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <input required type="text" id="report-crime" placeholder="Tipo de Crime (Ex: Tráfico)" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            <input required type="text" id="report-location" placeholder="Localização (Bairro, Rua)" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-sky-500">
                         </div>
                         <div class="mb-6">
-                            <textarea placeholder="Descreva a situação com o máximo de detalhes. Inclua nomes de suspeitos, veículos, horários, etc." rows="6" class="bg-gray-900 border border-gray-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                            <textarea required id="report-details" placeholder="Descreva a situação com o máximo de detalhes..." rows="6" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
                         </div>
                         <div class="text-center">
-                            <button type="submit" class="btn-primary w-full md:w-auto">Enviar Denúncia Sigilosa</button>
+                            <button type="submit" class="bg-sky-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-sky-600 transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg shadow-sky-500/20 w-full md:w-auto">Enviar Denúncia Sigilosa</button>
                         </div>
                     </form>
-                     <!-- Mensagem de sucesso -->
-                    <div id="success-message" class="hidden mt-6 text-center bg-green-900/50 border border-green-700 text-green-300 px-4 py-3 rounded-lg">
-                        <p class="font-bold">Denúncia enviada com sucesso!</p>
-                        <p class="text-sm">Agradecemos sua colaboração. Nossos agentes irão analisar as informações.</p>
-                    </div>
+                    <div id="success-message" class="hidden mt-6 text-center bg-green-900/50 border border-green-700 text-green-300 px-4 py-3 rounded-lg" aria-live="polite"><p class="font-bold">Denúncia enviada com sucesso!</p><p class="text-sm">Agradecemos sua colaboração. Nossos agentes irão analisar.</p></div>
+                    <div id="error-message" class="hidden mt-6 text-center bg-red-900/50 border border-red-700 text-red-300 px-4 py-3 rounded-lg" aria-live="polite"><p class="font-bold">Erro ao enviar!</p><p class="text-sm">Não foi possível enviar a denúncia. Tente novamente mais tarde.</p></div>
                 </div>
             </div>
         </section>
 
-        <!-- Seção Carreiras -->
-        <section id="careers" class="py-20" style="background-color: #0a0a0a;">
+        <section id="careers" class="py-24 bg-slate-950">
             <div class="container mx-auto px-6 text-center">
-                 <h2 class="section-title">Faça Parte da Elite</h2>
-                <p class="section-subtitle">
-                   Procuramos por indivíduos dedicados e corajosos para se juntarem às fileiras do DEIC.
-                </p>
+                <h2 class="text-4xl md:text-5xl font-black text-center mb-3 text-white">Faça Parte da Elite</h2>
+                <p class="text-center text-slate-400 mb-12 max-w-2xl mx-auto">Procuramos por indivíduos dedicados e corajosos para se juntarem às fileiras do DEIC.</p>
                 <div class="max-w-3xl mx-auto card rounded-lg p-8">
                     <h3 class="text-2xl font-bold text-white mb-4">Processo Seletivo Aberto</h3>
-                    <p class="text-gray-400 mb-6">
-                        Para se candidatar a uma vaga no DEIC, você precisa ser um membro exemplar da Polícia Civil, com um histórico de serviço impecável e aprovação em nossos rigorosos testes físicos, psicológicos e táticos.
-                    </p>
-                    <p class="text-gray-400 mb-8">
-                        Fique atento aos anúncios de recrutamento em nossos canais oficiais dentro da cidade ou contate o comando do DEIC para mais informações.
-                    </p>
-                    <a href="#" class="btn-secondary">Ver Editais (In-Game)</a>
+                    <p class="text-slate-400 mb-8">Para se candidatar, você precisa ser um membro exemplar da Polícia Civil, com um histórico impecável e aprovação em nossos rigorosos testes. Preencha o formulário de inscrição para iniciar o processo.</p>
+                    <a href="https://encurtador.com.br/nACZk" target="_blank" rel="noopener noreferrer" class="bg-slate-700 text-slate-200 font-bold py-3 px-8 rounded-lg hover:bg-slate-600 transition-all duration-300 ease-in-out inline-block">Acessar Formulário</a>
                 </div>
             </div>
         </section>
-
     </main>
+    
+    <!-- Página de Login -->
+    <section id="page-login" class="hidden min-h-screen flex items-center justify-center bg-slate-950 fade-in px-4">
+        <div class="max-w-md w-full mx-auto">
+            <div class="card rounded-lg p-8">
+                <h2 class="text-3xl font-bold text-white text-center mb-6">Acesso Restrito</h2>
+                <form id="login-form">
+                    <div class="mb-4"><label for="login-email" class="block text-slate-400 mb-2">Email</label><input required type="email" id="login-email" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-sky-500"></div>
+                    <div class="mb-6"><label for="login-password" class="block text-slate-400 mb-2">Senha</label><input required type="password" id="login-password" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-sky-500"></div>
+                    <button type="submit" class="bg-sky-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-sky-600 transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg shadow-sky-500/20 w-full">Entrar</button>
+                    <p class="text-center text-slate-400 text-sm mt-4">Não tem uma conta? <a href="#register" class="text-sky-400 hover:underline">Registre-se aqui</a>.</p>
+                </form>
+                 <div id="login-error" class="hidden mt-4 text-center bg-red-900/50 border border-red-700 text-red-300 px-4 py-2 rounded-lg text-sm" aria-live="polite"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Página de Registro -->
+    <section id="page-register" class="hidden min-h-screen flex items-center justify-center bg-slate-950 fade-in px-4">
+        <div class="max-w-md w-full mx-auto">
+            <div class="card rounded-lg p-8">
+                <h2 class="text-3xl font-bold text-white text-center mb-6">Criar Conta de Oficial</h2>
+                <form id="register-form">
+                    <div class="mb-4"><label for="register-email" class="block text-slate-400 mb-2">Email</label><input required type="email" id="register-email" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-sky-500"></div>
+                    <div class="mb-4"><label for="register-password" class="block text-slate-400 mb-2">Senha</label><input required type="password" id="register-password" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-sky-500"></div>
+                    <div class="mb-6"><label for="register-token" class="block text-slate-400 mb-2">Token de Acesso</label><input required type="text" id="register-token" placeholder="Solicite ao seu superior" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-sky-500"></div>
+                    <button type="submit" class="bg-sky-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-sky-600 transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg shadow-sky-500/20 w-full">Registrar</button>
+                    <p class="text-center text-slate-400 text-sm mt-4">Já tem uma conta? <a href="#login" class="text-sky-400 hover:underline">Faça o login</a>.</p>
+                </form>
+                 <div id="register-message" class="hidden mt-4 text-center px-4 py-2 rounded-lg text-sm" aria-live="polite"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Painel do Administrador -->
+    <section id="page-admin" class="hidden container mx-auto px-6 py-16 fade-in">
+        <h1 class="text-4xl font-black text-white mb-8">Painel Administrativo</h1>
+        
+        <!-- Seção de Relatórios de Inteligência -->
+        <div id="intelligence-reports-section" class="mb-12">
+            <h2 class="text-2xl font-bold text-sky-400 mb-4">Relatórios de Inteligência</h2>
+            <div id="intelligence-reports-container" class="space-y-4">
+                <!-- Relatórios de Inteligência serão carregados aqui -->
+                <p class="text-slate-400">Carregando relatórios...</p>
+            </div>
+        </div>
+        
+        <!-- Seção de Denúncias -->
+        <div class="mb-12">
+            <h2 class="text-2xl font-bold text-sky-400 mb-4">Denúncias Recebidas</h2>
+            <div id="reports-container" class="space-y-4">
+                <!-- Denúncias serão carregadas aqui -->
+                <p class="text-slate-400">Carregando denúncias...</p>
+            </div>
+        </div>
+
+        <!-- Seção de Geração de Token (visibilidade controlada por JS) -->
+        <div id="token-generation-section" class="hidden">
+            <h2 class="text-2xl font-bold text-sky-400 mb-4">Gerenciamento de Acesso</h2>
+            <div class="card p-6 max-w-lg">
+                <h3 class="font-bold text-white mb-2">Gerar Novo Token de Registro</h3>
+                <p class="text-slate-400 text-sm mb-4">Gere um token de uso único para registrar um novo oficial no sistema.</p>
+                <button id="generate-token-btn" class="bg-slate-700 text-slate-200 font-bold py-3 px-8 rounded-lg hover:bg-slate-600 transition-all duration-300 ease-in-out">Gerar Token</button>
+                <div id="token-display" class="mt-4 hidden">
+                    <p class="text-slate-300">Token gerado:</p>
+                    <input type="text" id="new-token-input" readonly class="bg-slate-800 border border-slate-600 rounded-lg p-2 w-full mt-1 text-green-400 font-mono">
+                    <button id="copy-token-btn" class="mt-2 text-sm text-sky-400 hover:underline">Copiar</button>
+                </div>
+                <div id="token-feedback" class="text-sm mt-2" aria-live="polite"></div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Página de Envio de Relatório -->
+    <section id="page-relatorio" class="hidden min-h-screen flex items-center justify-center bg-slate-950 fade-in px-4">
+        <div class="max-w-3xl w-full mx-auto">
+            <div class="card rounded-lg p-8">
+                <h2 class="text-3xl font-bold text-white text-center mb-6">Subir Relatório de Inteligência</h2>
+                <form id="intelligence-report-form">
+                    <div class="mb-4">
+                        <label for="report-title" class="block text-slate-400 mb-2">Título da Operação</label>
+                        <input required type="text" id="report-title" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    </div>
+                    <div class="mb-6">
+                        <label for="report-description" class="block text-slate-400 mb-2">Descrição Detalhada</label>
+                        <textarea required id="report-description" rows="8" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-slate-400 mb-2">Anexar Imagem</label>
+                        <div id="drop-zone" class="drop-zone rounded-lg p-8 text-center cursor-pointer">
+                            <input type="file" id="report-image-input" class="hidden" accept="image/png, image/jpeg, image/gif">
+                            <p id="drop-zone-text" class="text-slate-500">Arraste e solte uma imagem aqui, ou clique para selecionar.</p>
+                            <img id="image-preview" src="" alt="Pré-visualização da imagem" class="hidden max-h-48 mx-auto mt-4 rounded-md">
+                        </div>
+                    </div>
+                    <button type="submit" class="bg-sky-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-sky-600 transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg shadow-sky-500/20 w-full">Enviar Relatório</button>
+                </form>
+                <div id="intel-report-feedback" class="hidden mt-4 text-center px-4 py-2 rounded-lg text-sm" aria-live="polite"></div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Modal do Código Penal -->
+    <div id="penal-code-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4 fade-in">
+        <div class="card rounded-lg p-6 max-w-4xl w-full max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 pb-4 border-b border-slate-700">
+                <h2 class="text-2xl font-bold text-white">Código Penal - Brasil Roleplay</h2>
+                <button id="close-penal-code-btn" class="text-slate-400 hover:text-white text-3xl leading-none">&times;</button>
+            </div>
+            <div class="overflow-y-auto modal-scrollbar pr-4">
+                <dl class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 01:</dt><dd class="md:col-span-10 text-slate-300">Abuso de Autoridade</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 02:</dt><dd class="md:col-span-10 text-slate-300">Corrupção Passiva e/ou Ativa</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 03:</dt><dd class="md:col-span-10 text-slate-300">Desacato</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 04:</dt><dd class="md:col-span-10 text-slate-300">Impedir Exercício Profissional</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 05:</dt><dd class="md:col-span-10 text-slate-300">Prevaricação</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 06:</dt><dd class="md:col-span-10 text-slate-300">Prisão Disciplinar</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 07:</dt><dd class="md:col-span-10 text-slate-300">Tráfico de Influência</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 08:</dt><dd class="md:col-span-10 text-slate-300">Uso irregular de Função Pública</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 09:</dt><dd class="md:col-span-10 text-slate-300">Tentativa de Homicídio</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 10:</dt><dd class="md:col-span-10 text-slate-300">Homicídio Culposo</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 11:</dt><dd class="md:col-span-10 text-slate-300">Homicídio Doloso</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 12:</dt><dd class="md:col-span-10 text-slate-300">Homicídio Qualificado</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 13:</dt><dd class="md:col-span-10 text-slate-300">Latrocínio</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 14:</dt><dd class="md:col-span-10 text-slate-300">Assédio Moral</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 15:</dt><dd class="md:col-span-10 text-slate-300">Calúnia</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 16:</dt><dd class="md:col-span-10 text-slate-300">Difamação</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 17:</dt><dd class="md:col-span-10 text-slate-300">Injúria</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 18:</dt><dd class="md:col-span-10 text-slate-300">Importunação Sexual</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 19:</dt><dd class="md:col-span-10 text-slate-300">Perjúrio</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 20:</dt><dd class="md:col-span-10 text-slate-300">Abandono de Incapaz</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 21:</dt><dd class="md:col-span-10 text-slate-300">Adultério</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 22:</dt><dd class="md:col-span-10 text-slate-300">Bigamia</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 23:</dt><dd class="md:col-span-10 text-slate-300">Crime Sexual Intrafamiliar</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 24:</dt><dd class="md:col-span-10 text-slate-300">Ameaça</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 25:</dt><dd class="md:col-span-10 text-slate-300">Extorsão</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 26:</dt><dd class="md:col-span-10 text-slate-300">Lesão Corporal</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 27:</dt><dd class="md:col-span-10 text-slate-300">Sequestro</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 28:</dt><dd class="md:col-span-10 text-slate-300">Tortura</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 29:</dt><dd class="md:col-span-10 text-slate-300">Vandalismo</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 30:</dt><dd class="md:col-span-10 text-slate-300">Dano de Propriedade do Governo</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 31:</dt><dd class="md:col-span-10 text-slate-300">Estelionato</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 32:</dt><dd class="md:col-span-10 text-slate-300">Invasão de Propriedade</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 33:</dt><dd class="md:col-span-10 text-slate-300">Furto</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 34:</dt><dd class="md:col-span-10 text-slate-300">Roubo</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 35:</dt><dd class="md:col-span-10 text-slate-300">Posse de Produtos Ilegais</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 36:</dt><dd class="md:col-span-10 text-slate-300">Tráfico de Produtos Ilegais</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 37:</dt><dd class="md:col-span-10 text-slate-300">Posse de Peças de Armas</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 38:</dt><dd class="md:col-span-10 text-slate-300">Posse de Cápsula</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 39:</dt><dd class="md:col-span-10 text-slate-300">Porte de Arma Leve</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 40:</dt><dd class="md:col-span-10 text-slate-300">Tráfico de Armas Leve</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 41:</dt><dd class="md:col-span-10 text-slate-300">Porte de Arma Pesada</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 42:</dt><dd class="md:col-span-10 text-slate-300">Tráfico de Armas Pesada</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 43:</dt><dd class="md:col-span-10 text-slate-300">Porte de Arma Branca</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 44:</dt><dd class="md:col-span-10 text-slate-300">Porte de Munição (‑100)</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 45:</dt><dd class="md:col-span-10 text-slate-300">Tráfico de Munição (+100)</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 46:</dt><dd class="md:col-span-10 text-slate-300">Posse de Componentes Narcóticos</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 47:</dt><dd class="md:col-span-10 text-slate-300">Posse de Drogas (‑100)</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 48:</dt><dd class="md:col-span-10 text-slate-300">Tráfico de Drogas (+100)</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 49:</dt><dd class="md:col-span-10 text-slate-300">Dinheiro Sujo Leve</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 50:</dt><dd class="md:col-span-10 text-slate-300">Dinheiro Sujo Médio</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 51:</dt><dd class="md:col-span-10 text-slate-300">Dinheiro Sujo Grave</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 52:</dt><dd class="md:col-span-10 text-slate-300">Apologia ao Crime</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 53:</dt><dd class="md:col-span-10 text-slate-300">Falsidade Ideológica</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 54:</dt><dd class="md:col-span-10 text-slate-300">Formação de Quadrilha</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 55:</dt><dd class="md:col-span-10 text-slate-300">Desobediência</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 56:</dt><dd class="md:col-span-10 text-slate-300">Exercício Ilegal de Profissão</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 57:</dt><dd class="md:col-span-10 text-slate-300">Falsa Comunicação de Crime</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 58:</dt><dd class="md:col-span-10 text-slate-300">Obstrução de Justiça</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 59:</dt><dd class="md:col-span-10 text-slate-300">Ocultação de Provas</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 60:</dt><dd class="md:col-span-10 text-slate-300">Omissão de Socorro</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 61:</dt><dd class="md:col-span-10 text-slate-300">Perturbação da Ordem</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 62:</dt><dd class="md:col-span-10 text-slate-300">QRR Ilegal</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 63:</dt><dd class="md:col-span-10 text-slate-300">Tentativa de Fuga</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 64:</dt><dd class="md:col-span-10 text-slate-300">Tentativa de Suborno</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 65:</dt><dd class="md:col-span-10 text-slate-300">Alta Velocidade</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 66:</dt><dd class="md:col-span-10 text-slate-300">Condução Imprudente</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 67:</dt><dd class="md:col-span-10 text-slate-300">Corridas Ilegais</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 68:</dt><dd class="md:col-span-10 text-slate-300">Dirigir na Contramão</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 69:</dt><dd class="md:col-span-10 text-slate-300">Poluição Sonora</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 70:</dt><dd class="md:col-span-10 text-slate-300">Veículo Muito Danificado</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 71:</dt><dd class="md:col-span-10 text-slate-300">Veículo Ilegalmente Estacionado</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 72:</dt><dd class="md:col-span-10 text-slate-300">Uso Excessivo de Insulfilm</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 73:</dt><dd class="md:col-span-10 text-slate-300">Ocultação Facial</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 74:</dt><dd class="md:col-span-10 text-slate-300">Uso de Coldre</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 75:</dt><dd class="md:col-span-10 text-slate-300">Uso de Colete (Roupa)</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 76:</dt><dd class="md:col-span-10 text-slate-300">Porte de Colete Balístico (equipamento)</dd></div>
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-2"><dt class="md:col-span-2 font-bold text-sky-400">Art. 77:</dt><dd class="md:col-span-10 text-slate-300">Tráfico de Colete Balístico (equipamento)</dd></div>
+                </dl>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Rodapé -->
-    <footer class="bg-black border-t border-gray-800 py-8">
-        <div class="container mx-auto px-6 text-center text-gray-500">
-            <img src="hsw3sc.png" alt="Logo Brasil Roleplay" class="h-16 mx-auto mb-4 opacity-50">
+    <footer class="bg-slate-950 border-t border-slate-800 py-8">
+        <div class="container mx-auto px-6 text-center text-slate-500">
+            <img src="logobrasil.png" alt="Logo Brasil Roleplay" class="h-16 mx-auto mb-4 opacity-40">
             <p>&copy; 2025 DEIC - Polícia Civil. Todos os direitos reservados no universo Brasil Roleplay.</p>
-            <p class="text-xs mt-2">Este site é uma obra de ficção para um ambiente de jogo e não possui qualquer ligação com instituições reais.</p>
+            <p class="text-xs mt-2">Este site é uma obra de ficção e não possui ligação com instituições reais.</p>
         </div>
     </footer>
+    
+    <script type="module">
+        // --- CONFIGURAÇÃO DO SUPABASE ---
+        const supabaseUrl = 'https://lscokjdqmruajhwwlfqr.supabase.co';
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxzY29ramRxbXJ1YWpod3dsZnFyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA1ODM2MDAsImV4cCI6MjA3NjE1OTYwMH0.J7lBcK5L6sH9QfbCneIQfd2TrEIAlyasQJkS1LVzSkA';
 
-    <script>
-        // Script para menu mobile
-        const menuBtn = document.getElementById('menu-btn');
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey);
+
+        // --- ELEMENTOS DO DOM ---
+        const pages = {
+            main: document.getElementById('page-main'),
+            login: document.getElementById('page-login'),
+            register: document.getElementById('page-register'),
+            admin: document.getElementById('page-admin'),
+            relatorio: document.getElementById('page-relatorio'),
+        };
+        const header = document.getElementById('header');
+        const authLinks = document.getElementById('auth-links');
+        const adminLinks = document.getElementById('admin-links');
         const mobileMenu = document.getElementById('mobile-menu');
-        menuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
+        const penalCodeModal = document.getElementById('penal-code-modal');
 
-        // Script para o formulário de denúncia
-        const reportForm = document.getElementById('report-form');
-        const successMessage = document.getElementById('success-message');
+        let currentUserRole = null;
+        let selectedFile = null;
 
-        reportForm.addEventListener('submit', (e) => {
-            e.preventDefault(); // Impede o envio real do formulário
-            reportForm.reset(); // Limpa os campos
-            successMessage.classList.remove('hidden'); // Mostra a mensagem
+        // --- FUNÇÃO UTILITÁRIA ---
+        const sanitizeHTML = (str) => {
+            if (!str) return '';
+            const temp = document.createElement('div');
+            temp.textContent = str;
+            return temp.innerHTML;
+        };
 
-            // Esconde a mensagem após 5 segundos
-            setTimeout(() => {
-                successMessage.classList.add('hidden');
-            }, 5000);
-        });
+        // --- ROTEAMENTO ---
+        async function handleRouteChange() {
+            const hash = window.location.hash || '#';
+            
+            Object.values(pages).forEach(page => page && page.classList.add('hidden'));
+            window.scrollTo(0, 0);
 
-        // Fechar menu mobile ao clicar em um link
-        document.querySelectorAll('#mobile-menu a').forEach(link => {
-            link.addEventListener('click', () => {
-                mobileMenu.classList.add('hidden');
+            let activePage = pages.main;
+            const { data: { session } } = await supabase.auth.getSession();
+            const isLoggedIn = !!session;
+
+            if (isLoggedIn && !currentUserRole) {
+                await fetchUserRole(session.user.id);
+            }
+
+            if (hash.startsWith('#admin')) {
+                if (isLoggedIn) {
+                    activePage = pages.admin;
+                    loadAdminData();
+                } else {
+                    window.location.hash = '#login';
+                    return; 
+                }
+            } else if (hash.startsWith('#relatorio')) {
+                 if (isLoggedIn && ['Developer', 'Admin', 'Oficial'].includes(currentUserRole)) {
+                    activePage = pages.relatorio;
+                } else if (isLoggedIn) {
+                    window.location.hash = '#'; // Volta para home se não tiver permissão
+                }
+                else {
+                    window.location.hash = '#login';
+                }
+            } else if (hash.startsWith('#login')) {
+                activePage = pages.login;
+            } else if (hash.startsWith('#register')) {
+                activePage = pages.register;
+            }
+            
+            if (activePage) {
+                activePage.classList.remove('hidden');
+            }
+        }
+        
+        async function fetchUserRole(userId) {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('roles(name)')
+                .eq('id', userId)
+                .single();
+            
+            if (data && data.roles) {
+                currentUserRole = data.roles.name;
+            } else {
+                currentUserRole = null;
+            }
+            updateUserUI(); // Atualiza a UI depois de pegar o cargo
+        }
+
+        // --- AUTENTICAÇÃO E UI ---
+        async function updateUserUI() {
+            const { data: { session } } = await supabase.auth.getSession();
+            const isLoggedIn = !!session;
+
+            // Limpa o link de relatório para recriar se necessário
+            const existingReportLink = document.getElementById('nav-report-link');
+            if(existingReportLink) existingReportLink.remove();
+
+            if (isLoggedIn) {
+                if(!currentUserRole && session?.user) await fetchUserRole(session.user.id);
+                
+                authLinks?.classList.add('hidden');
+                authLinks?.classList.remove('md:flex');
+                adminLinks?.classList.remove('hidden');
+                adminLinks?.classList.add('md:flex');
+                
+                // Mostra/Esconde seções do Admin Panel
+                const tokenSection = document.getElementById('token-generation-section');
+                const intelSection = document.getElementById('intelligence-reports-section');
+                if (['Developer', 'Admin'].includes(currentUserRole)) {
+                    tokenSection?.classList.remove('hidden');
+                } else {
+                    tokenSection?.classList.add('hidden');
+                }
+
+                if (['Developer', 'Admin', 'Oficial'].includes(currentUserRole)) {
+                    intelSection?.classList.remove('hidden');
+                    // Adiciona link para subir relatório
+                    const reportLink = document.createElement('a');
+                    reportLink.href = '#relatorio';
+                    reportLink.id = 'nav-report-link';
+                    reportLink.className = 'text-slate-300 hover:text-sky-400 transition';
+                    reportLink.textContent = 'Subir Relatório';
+                    document.getElementById('nav-links')?.children[2].insertAdjacentElement('afterend', reportLink);
+                } else {
+                    intelSection?.classList.add('hidden');
+                }
+
+            } else {
+                currentUserRole = null;
+                authLinks?.classList.remove('hidden');
+                authLinks?.classList.add('md:flex');
+                adminLinks?.classList.add('hidden');
+                adminLinks?.classList.remove('md:flex');
+            }
+
+            // --- Lógica do Menu Mobile ---
+            if(mobileMenu) mobileMenu.innerHTML = '';
+            
+            const baseLinks = document.querySelectorAll('#nav-links a');
+            const authActionLinks = isLoggedIn 
+                ? document.querySelectorAll('#admin-links a, #admin-links button') 
+                : document.querySelectorAll('#auth-links a');
+
+            baseLinks.forEach(link => {
+                const mobileLink = link.cloneNode(true);
+                mobileLink.className = 'block py-2 px-4 text-center rounded-md hover:bg-slate-700 transition-colors';
+                mobileMenu.appendChild(mobileLink);
             });
+
+            authActionLinks.forEach(link => {
+                const mobileLink = link.cloneNode(true);
+                mobileLink.className = 'block w-full py-2 px-4 text-center rounded-md transition-colors font-semibold';
+                
+                if (link.id === 'logout-button' || link.textContent === 'Registro') {
+                    if (link.className.includes('bg-red-600')) {
+                        mobileLink.classList.add('bg-red-600', 'hover:bg-red-700');
+                    } else {
+                        mobileLink.classList.add('bg-sky-600', 'hover:bg-sky-700');
+                    }
+                } else {
+                    mobileLink.classList.add('hover:bg-slate-700');
+                }
+                mobileMenu.appendChild(mobileLink);
+            });
+        }
+        
+        // --- LÓGICA DO PAINEL ADMIN ---
+        async function loadAdminData() {
+            if (!['Developer', 'Admin', 'Oficial'].includes(currentUserRole)) return;
+            
+            // Carregar Denúncias Anônimas
+            const reportsContainer = document.getElementById('reports-container');
+            if (!reportsContainer) return;
+            reportsContainer.innerHTML = '<p class="text-slate-400">Carregando denúncias...</p>';
+            
+            const { data: reports, error } = await supabase
+                .from('denuncias')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                reportsContainer.innerHTML = `<p class="text-red-400">Erro ao carregar denúncias. ${error.message}</p>`;
+                return;
+            }
+            
+            if (!reports || reports.length === 0) {
+                reportsContainer.innerHTML = '<p class="text-slate-400">Nenhuma denúncia encontrada.</p>';
+            } else {
+                reportsContainer.innerHTML = reports.map(report => `
+                    <div class="card p-4 rounded-lg">
+                        <div class="flex justify-between items-start flex-wrap gap-2">
+                            <div>
+                                <h3 class="font-bold text-white">${sanitizeHTML(report.tipo_crime)}</h3>
+                                <p class="text-sm text-sky-400 font-mono">${sanitizeHTML(report.localizacao)}</p>
+                            </div>
+                            <span class="text-xs text-slate-500 flex-shrink-0">${new Date(report.created_at).toLocaleString('pt-BR')}</span>
+                        </div>
+                        <p class="mt-2 text-slate-300 bg-slate-800/50 p-3 rounded break-words">${sanitizeHTML(report.detalhes)}</p>
+                    </div>
+                `).join('');
+            }
+
+            // Carregar Relatórios de Inteligência
+            const intelReportsContainer = document.getElementById('intelligence-reports-container');
+            if(!intelReportsContainer) return;
+            intelReportsContainer.innerHTML = '<p class="text-slate-400">Carregando relatórios de inteligência...</p>';
+
+            const { data: intelReports, error: intelError } = await supabase
+                .from('relatorios')
+                .select(`
+                    *,
+                    profiles ( email )
+                `)
+                .order('created_at', { ascending: false });
+
+            if(intelError){
+                intelReportsContainer.innerHTML = `<p class="text-red-400">Erro ao carregar relatórios. ${intelError.message}</p>`;
+                return;
+            }
+            if(!intelReports || intelReports.length === 0){
+                intelReportsContainer.innerHTML = '<p class="text-slate-400">Nenhum relatório de inteligência encontrado.</p>';
+            } else {
+                intelReportsContainer.innerHTML = intelReports.map(report => `
+                    <div class="card p-4 rounded-lg">
+                        <div class="flex justify-between items-start flex-wrap gap-2 mb-2">
+                            <div>
+                                <h3 class="font-bold text-white">${sanitizeHTML(report.titulo)}</h3>
+                                <p class="text-xs text-slate-400">Enviado por: ${sanitizeHTML(report.profiles.email)}</p>
+                            </div>
+                            <span class="text-xs text-slate-500 flex-shrink-0">${new Date(report.created_at).toLocaleString('pt-BR')}</span>
+                        </div>
+                        <p class="text-slate-300 text-sm mb-4">${sanitizeHTML(report.descricao)}</p>
+                        ${report.imagem_url ? `<img src="${report.imagem_url}" alt="Imagem do relatório" class="max-w-full h-auto rounded-md border border-slate-700">` : ''}
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function handleGenerateToken() {
+            const tokenFeedback = document.getElementById('token-feedback');
+            if (!tokenFeedback) return;
+            
+            tokenFeedback.textContent = 'Gerando...';
+            tokenFeedback.className = 'text-sm mt-2 text-yellow-400';
+            
+            const newToken = `DEIC-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+            
+            const { error } = await supabase.from('tokens').insert([{ token: newToken, usado: false }]);
+
+            if (error) {
+                tokenFeedback.textContent = 'Erro ao gerar token. Verifique suas permissões.';
+                tokenFeedback.className = 'text-sm mt-2 text-red-400';
+            } else {
+                document.getElementById('token-display')?.classList.remove('hidden');
+                const tokenInput = document.getElementById('new-token-input');
+                if (tokenInput) tokenInput.value = newToken;
+                tokenFeedback.textContent = 'Token gerado e salvo com sucesso!';
+                tokenFeedback.className = 'text-sm mt-2 text-green-400';
+            }
+        }
+        
+        function handleFileSelect(file) {
+            if (file && file.type.startsWith('image/')) {
+                selectedFile = file;
+                const preview = document.getElementById('image-preview');
+                const dropZoneText = document.getElementById('drop-zone-text');
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
+                    dropZoneText.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert("Por favor, selecione um arquivo de imagem válido (png, jpg, gif).");
+                selectedFile = null;
+            }
+        }
+
+
+        // --- EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            header.addEventListener('click', (e) => {
+                const menuBtn = e.target.closest('#menu-btn');
+                if (menuBtn) {
+                    const isExpanded = menuBtn.getAttribute('aria-expanded') === 'true';
+                    menuBtn.setAttribute('aria-expanded', !isExpanded);
+                    mobileMenu.classList.toggle('hidden');
+                    document.getElementById('menu-icon-open')?.classList.toggle('hidden');
+                    document.getElementById('menu-icon-close')?.classList.toggle('hidden');
+                }
+                if (e.target.closest('#mobile-menu a, #mobile-menu button')) {
+                    const menuBtn = document.getElementById('menu-btn');
+                    menuBtn.setAttribute('aria-expanded', 'false');
+                    mobileMenu.classList.add('hidden');
+                    document.getElementById('menu-icon-open')?.classList.remove('hidden');
+                    document.getElementById('menu-icon-close')?.classList.add('hidden');
+                }
+            });
+
+            document.body.addEventListener('submit', async (e) => {
+                if (e.target.id === 'report-form') {
+                    e.preventDefault();
+                    const crime = document.getElementById('report-crime').value;
+                    const location = document.getElementById('report-location').value;
+                    const details = document.getElementById('report-details').value;
+                    const { error } = await supabase.from('denuncias').insert([{ tipo_crime: crime, localizacao: location, detalhes: details }]);
+                    const successMsg = document.getElementById('success-message');
+                    const errorMsg = document.getElementById('error-message');
+                    if (error) {
+                        errorMsg?.classList.remove('hidden');
+                        setTimeout(() => errorMsg?.classList.add('hidden'), 5000);
+                    } else {
+                        successMsg?.classList.remove('hidden');
+                        e.target.reset();
+                        setTimeout(() => successMsg?.classList.add('hidden'), 5000);
+                    }
+                }
+                if (e.target.id === 'login-form') {
+                    e.preventDefault();
+                    const email = document.getElementById('login-email').value;
+                    const password = document.getElementById('login-password').value;
+                    const loginError = document.getElementById('login-error');
+                    if (!loginError) return;
+                    const { error } = await supabase.auth.signInWithPassword({ email, password });
+                    if (error) {
+                        loginError.textContent = 'Email ou senha inválidos.';
+                        loginError.classList.remove('hidden');
+                    } else {
+                        loginError.classList.add('hidden');
+                        window.location.hash = '#admin';
+                    }
+                }
+                if (e.target.id === 'register-form') {
+                    e.preventDefault();
+                    const email = document.getElementById('register-email').value;
+                    const password = document.getElementById('register-password').value;
+                    const token = document.getElementById('register-token').value;
+                    const msgEl = document.getElementById('register-message');
+                    if (!msgEl) return;
+                    msgEl.textContent = 'Verificando token...';
+                    msgEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-yellow-400 bg-yellow-900/50 block';
+                    const { data: tokenData, error: tokenError } = await supabase.from('tokens').select('*').eq('token', token).single();
+                    if (tokenError || !tokenData || tokenData.usado) {
+                        msgEl.textContent = 'Token inválido ou já utilizado.';
+                        msgEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
+                        return;
+                    }
+                    const { error: signUpError } = await supabase.auth.signUp({ email, password });
+                    if (signUpError) {
+                        msgEl.textContent = 'Erro ao criar conta: ' + signUpError.message;
+                        msgEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
+                    } else {
+                        await supabase.from('tokens').update({ usado: true }).eq('id', tokenData.id);
+                        msgEl.textContent = 'Conta criada com sucesso! Verifique seu email para confirmação e depois faça o login.';
+                        msgEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-green-400 bg-green-900/50 block';
+                        e.target.reset();
+                    }
+                }
+                if (e.target.id === 'intelligence-report-form') {
+                    e.preventDefault();
+                    const title = document.getElementById('report-title').value;
+                    const description = document.getElementById('report-description').value;
+                    const feedbackEl = document.getElementById('intel-report-feedback');
+                    const { data: { user } } = await supabase.auth.getUser();
+                    
+                    if (!selectedFile) {
+                        feedbackEl.textContent = 'Por favor, anexe uma imagem.';
+                        feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
+                        return;
+                    }
+                    if (!user) {
+                        feedbackEl.textContent = 'Sua sessão expirou. Faça login novamente para enviar um relatório.';
+                        feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
+                        return;
+                    }
+
+                    feedbackEl.textContent = 'Enviando relatório...';
+                    feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-yellow-400 bg-yellow-900/50 block';
+                    
+                    const filePath = `${user.id}/${Date.now()}_${selectedFile.name}`;
+                    
+                    const { error: uploadError } = await supabase.storage
+                        .from('relatorios')
+                        .upload(filePath, selectedFile);
+                        
+                    if(uploadError) {
+                        feedbackEl.textContent = 'Erro no upload da imagem: ' + uploadError.message;
+                        feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
+                        return;
+                    }
+                    
+                    const { data: urlData } = supabase.storage
+                        .from('relatorios')
+                        .getPublicUrl(filePath);
+
+                    const publicURL = urlData ? urlData.publicUrl : null;
+                    if(!publicURL){
+                        feedbackEl.textContent = 'Erro ao obter URL da imagem.';
+                        feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
+                        return;
+                    }
+
+                    const { error: insertError } = await supabase.from('relatorios').insert({
+                        titulo: title,
+                        descricao: description,
+                        imagem_url: publicURL,
+                        user_id: user.id
+                    });
+
+                    if (insertError) {
+                        feedbackEl.textContent = 'Erro ao salvar o relatório: ' + insertError.message;
+                        feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
+                    } else {
+                        feedbackEl.textContent = 'Relatório enviado com sucesso!';
+                        feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-green-400 bg-green-900/50 block';
+                        e.target.reset();
+                        document.getElementById('image-preview').classList.add('hidden');
+                        document.getElementById('drop-zone-text').classList.remove('hidden');
+                        selectedFile = null;
+                        setTimeout(() => window.location.hash = '#admin', 2000);
+                    }
+                }
+            });
+
+            // --- Lógica de Drag and Drop ---
+            const dropZone = document.getElementById('drop-zone');
+            const fileInput = document.getElementById('report-image-input');
+            
+            if(dropZone) {
+                dropZone.addEventListener('click', () => fileInput.click());
+                fileInput.addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
+                
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    });
+                });
+                
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'));
+                });
+                
+                ['dragleave', 'drop'].forEach(eventName => {
+                    dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'));
+                });
+
+                dropZone.addEventListener('drop', (e) => handleFileSelect(e.dataTransfer.files[0]));
+            }
+
+
+            document.body.addEventListener('click', async (e) => {
+                if (e.target.id === 'logout-button' || e.target.closest('#logout-button')) {
+                    const { error } = await supabase.auth.signOut();
+                    if (!error) {
+                        currentUserRole = null;
+                        window.location.hash = '#';
+                    }
+                }
+                if (e.target.id === 'generate-token-btn') {
+                    handleGenerateToken();
+                }
+                if (e.target.id === 'copy-token-btn') {
+                    const input = document.getElementById('new-token-input');
+                    const feedback = document.getElementById('token-feedback');
+                    if(input && navigator.clipboard) {
+                       navigator.clipboard.writeText(input.value).then(() => {
+                           if(feedback) feedback.textContent = 'Token copiado!';
+                       });
+                    } else if (input) { // Fallback
+                        input.select();
+                        document.execCommand('copy');
+                        if(feedback) feedback.textContent = 'Token copiado!';
+                    }
+                }
+                if (e.target.id === 'open-penal-code-btn') {
+                    penalCodeModal?.classList.remove('hidden');
+                }
+                if (e.target.id === 'close-penal-code-btn' || e.target === penalCodeModal) {
+                    penalCodeModal?.classList.add('hidden');
+                }
+            });
+
+            window.addEventListener('hashchange', handleRouteChange);
+            
+            supabase.auth.onAuthStateChange(async (_event, session) => {
+                if (session) {
+                    await fetchUserRole(session.user.id);
+                } else {
+                    currentUserRole = null;
+                    updateUserUI();
+                }
+                handleRouteChange();
+            });
+
+            // Inicialização
+            const { data: { session } } = await supabase.auth.getSession();
+            if(session) {
+                await fetchUserRole(session.user.id);
+            } else {
+                updateUserUI();
+            }
+            
+            handleRouteChange();
         });
     </script>
 </body>
 </html>
+
