@@ -93,7 +93,7 @@
     <header id="header" class="bg-slate-950/80 backdrop-blur-sm sticky top-0 z-50 border-b border-slate-800">
         <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
             <a href="#" class="flex items-center space-x-3">
-                <img src="logodeic.png" alt="Logo DEIC" class="h-14 w-auto">
+                <img src="logodeic.jpg" alt="Logo DEIC" class="h-14 w-auto">
                 <span class="text-xl font-bold text-white">DEIC</span>
             </a>
             <div id="nav-links" class="hidden md:flex items-center space-x-8">
@@ -482,7 +482,7 @@
 
         // --- LÓGICA PRINCIPAL DA APLICAÇÃO ---
         const app = {
-            async init() {
+            init() {
                 this.bindEvents();
                 supabase.auth.onAuthStateChange((event, session) => {
                     this.handleAuthStateChange(event, session);
@@ -490,44 +490,59 @@
             },
 
             async handleAuthStateChange(event, session) {
+                // This function is now the single source of truth for the user's authentication state.
                 const wasLoggedIn = !!currentUserRole;
                 currentUserRole = session ? await fetchUserRole(session.user.id) : null;
                 
                 await this.updateUI();
 
+                // If the app wasn't ready, it means this is the first auth check on page load.
+                // We now mark it as ready and run the router for the first time.
                 if (!appReady) {
                     appReady = true;
                     await this.handleRouteChange();
                 }
 
+                // Handle navigation redirects after state changes
                 if (event === 'SIGNED_OUT') {
                     showNotification('Você foi desconectado com sucesso.');
-                    if (window.location.hash !== '#') window.location.hash = '#';
+                    // The router will handle redirecting away from protected pages.
+                    await this.handleRouteChange();
                 } else if (event === 'SIGNED_IN' && !wasLoggedIn) {
-                    if (window.location.hash !== '#admin') window.location.hash = '#admin';
+                    // If a user just signed in, the router will redirect them to the admin panel.
+                    await this.handleRouteChange();
                 }
             },
 
             async handleRouteChange() {
+                // Don't run the router until the first authentication check is complete.
                 if (!appReady) return;
 
                 const hash = window.location.hash || '#';
                 const isLoggedIn = !!currentUserRole;
 
+                // --- Route Protection and Redirect Logic ---
+                const isProtectedRoute = hash.startsWith('#admin') || hash.startsWith('#relatorio');
+                const isAuthPage = hash.startsWith('#login') || hash.startsWith('#register');
+
+                if (isProtectedRoute && !isLoggedIn) {
+                    // User is logged out but tries to access a protected page. Redirect to login.
+                    window.location.hash = '#login';
+                    return; // Stop execution and let the new hash trigger the router again.
+                }
+                
+                if (isAuthPage && isLoggedIn) {
+                    // User is logged in but tries to access login/register page. Redirect to admin panel.
+                    window.location.hash = '#admin';
+                    return;
+                }
+                
+                // --- Page Visibility Logic ---
                 let targetPageKey = 'main';
                 if (hash.startsWith('#login')) targetPageKey = 'login';
                 else if (hash.startsWith('#register')) targetPageKey = 'register';
                 else if (hash.startsWith('#admin')) targetPageKey = 'admin';
                 else if (hash.startsWith('#relatorio')) targetPageKey = 'relatorio';
-
-                if ((targetPageKey === 'admin' || targetPageKey === 'relatorio') && !isLoggedIn) {
-                    window.location.hash = '#login';
-                    return;
-                }
-                if (targetPageKey === 'relatorio' && !['Developer', 'Admin', 'Oficial'].includes(currentUserRole)) {
-                    window.location.hash = '#';
-                    return;
-                }
 
                 mainContent.style.display = 'none';
                 Object.values(pages).forEach(page => {
@@ -836,8 +851,23 @@
                     }
                 });
 
-                document.body.addEventListener('click', (e) => {
-                    if (e.target.closest('#logout-button')) supabase.auth.signOut();
+                document.body.addEventListener('click', async (e) => {
+                    const logoutButton = e.target.closest('#logout-button');
+                    if (logoutButton) {
+                        logoutButton.disabled = true;
+                        logoutButton.textContent = 'Saindo...';
+                        try {
+                            const { error } = await supabase.auth.signOut();
+                            if (error) throw error;
+                        } catch (error) {
+                            console.error('Logout failed:', error);
+                            showNotification(`Erro ao sair: ${error.message}`);
+                            // Re-enable button on failure so user can try again
+                            logoutButton.disabled = false;
+                            logoutButton.textContent = 'Sair';
+                        }
+                    }
+
                     if (e.target.closest('#generate-token-btn')) this.handleGenerateToken();
                     if (e.target.closest('#copy-token-btn')) {
                         navigator.clipboard.writeText(document.getElementById('new-token-input').value).then(() => showNotification('Token copiado!'));
@@ -892,4 +922,5 @@
     </script>
 </body>
 </html>
+"
 
