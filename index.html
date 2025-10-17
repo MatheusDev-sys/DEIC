@@ -47,7 +47,6 @@
             transform: translateY(-5px);
             box-shadow: 0 10px 30px rgba(14, 165, 233, 0.1);
         }
-        /* Animações */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -55,22 +54,10 @@
         .fade-in {
             animation: fadeIn 0.8s ease-out forwards;
         }
-        /* Scrollbar customizada para o modal */
-        .modal-scrollbar::-webkit-scrollbar {
-            width: 8px;
-        }
-        .modal-scrollbar::-webkit-scrollbar-track {
-            background: #1e293b; /* slate-800 */
-            border-radius: 10px;
-        }
-        .modal-scrollbar::-webkit-scrollbar-thumb {
-            background: #334155; /* slate-700 */
-            border-radius: 10px;
-        }
-        .modal-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #475569; /* slate-600 */
-        }
-        /* Estilo para área de Drag and Drop */
+        .modal-scrollbar::-webkit-scrollbar { width: 8px; }
+        .modal-scrollbar::-webkit-scrollbar-track { background: #1e293b; border-radius: 10px; }
+        .modal-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .modal-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
         .drop-zone {
             border: 2px dashed var(--border-color);
             transition: all 0.3s ease;
@@ -79,11 +66,22 @@
             border-color: var(--primary-blue);
             background-color: rgba(14, 165, 233, 0.1);
         }
-        /* Estilo para Abas do Painel Admin */
-        .tab-button.active {
+        /* Estilos para o novo painel admin */
+        .admin-nav-button {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+        .admin-nav-button:hover {
+            background-color: #1e293b; /* slate-800 */
+        }
+        .admin-nav-button.active {
             background-color: var(--primary-blue);
             color: white;
-            border-color: var(--primary-blue);
+            font-weight: 600;
         }
     </style>
 </head>
@@ -230,7 +228,7 @@
                     <form id="login-form">
                         <div class="mb-4"><label for="login-email" class="block text-slate-400 mb-2">Email</label><input required type="email" id="login-email" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-sky-500"></div>
                         <div class="mb-6"><label for="login-password" class="block text-slate-400 mb-2">Senha</label><input required type="password" id="login-password" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-sky-500"></div>
-                        <button type="submit" class="bg-sky-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-sky-600 transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg shadow-sky-500/20 w-full">Entrar</button>
+                        <button type="submit" id="login-button" class="bg-sky-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-sky-600 transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg shadow-sky-500/20 w-full">Entrar</button>
                         <p class="text-center text-slate-400 text-sm mt-4">Não tem uma conta? <a href="#register" class="text-sky-400 hover:underline">Registre-se aqui</a>.</p>
                     </form>
                      <div id="login-error" class="hidden mt-4 text-center bg-red-900/50 border border-red-700 text-red-300 px-4 py-2 rounded-lg text-sm" aria-live="polite"></div>
@@ -256,34 +254,38 @@
 
         <section id="page-admin" class="hidden container mx-auto px-6 py-16 fade-in">
             <h1 class="text-4xl font-black text-white mb-8">Painel Administrativo</h1>
-            <div id="admin-tabs" class="flex border-b border-slate-700 mb-8">
-                <button data-tab="reports" class="tab-button px-4 py-2 text-slate-400 hover:text-white transition active border-b-2 border-transparent">Relatórios de Inteligência</button>
-                <button data-tab="denuncias" class="tab-button px-4 py-2 text-slate-400 hover:text-white transition border-b-2 border-transparent">Denúncias Recebidas</button>
-                <button data-tab="users" id="user-management-tab" class="tab-button px-4 py-2 text-slate-400 hover:text-white transition hidden border-b-2 border-transparent">Gerenciamento de Usuários</button>
-                <button data-tab="tokens" id="token-generation-tab" class="tab-button px-4 py-2 text-slate-400 hover:text-white transition hidden border-b-2 border-transparent">Gerenciamento de Acesso</button>
-            </div>
-            <div id="admin-tab-content">
-                <div id="tab-content-reports" class="tab-content">
-                    <div id="intelligence-reports-container" class="space-y-4"></div>
-                </div>
-                <div id="tab-content-denuncias" class="tab-content hidden">
-                    <div id="reports-container" class="space-y-4"></div>
-                </div>
-                <div id="tab-content-users" class="tab-content hidden">
-                    <div id="user-list-container" class="space-y-4"></div>
-                    <div id="user-management-feedback" class="hidden mt-4 text-center px-4 py-2 rounded-lg text-sm" aria-live="polite"></div>
-                </div>
-                <div id="tab-content-tokens" class="tab-content hidden">
-                    <div class="card p-6 max-w-lg">
-                        <h3 class="font-bold text-white mb-2">Gerar Novo Token de Registro</h3>
-                        <p class="text-slate-400 text-sm mb-4">Gere um token de uso único para registrar um novo oficial no sistema.</p>
-                        <button id="generate-token-btn" class="bg-slate-700 text-slate-200 font-bold py-3 px-8 rounded-lg hover:bg-slate-600 transition-all duration-300 ease-in-out">Gerar Token</button>
-                        <div id="token-display" class="mt-4 hidden">
-                            <p class="text-slate-300">Token gerado:</p>
-                            <input type="text" id="new-token-input" readonly class="bg-slate-800 border border-slate-600 rounded-lg p-2 w-full mt-1 text-green-400 font-mono">
-                            <button id="copy-token-btn" class="mt-2 text-sm text-sky-400 hover:underline">Copiar</button>
+            <div class="md:grid md:grid-cols-12 md:gap-8">
+                <!-- Menu Lateral -->
+                <aside class="md:col-span-3 lg:col-span-2">
+                    <nav id="admin-nav" class="flex flex-col space-y-1">
+                        <button data-tab="reports" class="admin-nav-button active">Relatórios de Inteligência</button>
+                        <button data-tab="denuncias" class="admin-nav-button">Denúncias Recebidas</button>
+                        <button data-tab="users" id="user-management-tab" class="admin-nav-button hidden">Gerenciar Usuários</button>
+                        <button data-tab="tokens" id="token-generation-tab" class="admin-nav-button hidden">Gerenciar Acesso</button>
+                    </nav>
+                </aside>
+                <!-- Conteúdo Principal -->
+                <div class="md:col-span-9 lg:col-span-10 mt-8 md:mt-0">
+                    <div id="admin-tab-content">
+                        <div id="tab-content-reports" class="tab-content space-y-4"></div>
+                        <div id="tab-content-denuncias" class="tab-content hidden space-y-4"></div>
+                        <div id="tab-content-users" class="tab-content hidden space-y-4">
+                            <div id="user-list-container" class="space-y-4"></div>
+                            <div id="user-management-feedback" class="hidden mt-4 text-center px-4 py-2 rounded-lg text-sm" aria-live="polite"></div>
                         </div>
-                        <div id="token-feedback" class="text-sm mt-2" aria-live="polite"></div>
+                        <div id="tab-content-tokens" class="tab-content hidden">
+                            <div class="card p-6 max-w-lg">
+                                <h3 class="font-bold text-white mb-2">Gerar Novo Token de Registro</h3>
+                                <p class="text-slate-400 text-sm mb-4">Gere um token de uso único para registrar um novo oficial no sistema.</p>
+                                <button id="generate-token-btn" class="bg-slate-700 text-slate-200 font-bold py-3 px-8 rounded-lg hover:bg-slate-600 transition-all duration-300 ease-in-out">Gerar Token</button>
+                                <div id="token-display" class="mt-4 hidden">
+                                    <p class="text-slate-300">Token gerado:</p>
+                                    <input type="text" id="new-token-input" readonly class="bg-slate-800 border border-slate-600 rounded-lg p-2 w-full mt-1 text-green-400 font-mono">
+                                    <button id="copy-token-btn" class="mt-2 text-sm text-sky-400 hover:underline">Copiar</button>
+                                </div>
+                                <div id="token-feedback" class="text-sm mt-2" aria-live="polite"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -439,12 +441,17 @@
             relatorio: document.getElementById('page-relatorio'),
         };
         const mainContent = document.getElementById('page-main');
-        const hiddenPagesContainer = document.getElementById('hidden-pages');
         const header = document.getElementById('header');
         const authLinks = document.getElementById('auth-links');
         const adminLinks = document.getElementById('admin-links');
         const mobileMenu = document.getElementById('mobile-menu');
         const penalCodeModal = document.getElementById('penal-code-modal');
+
+        // --- FORMULÁRIOS ---
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const reportForm = document.getElementById('report-form');
+        const intelligenceReportForm = document.getElementById('intelligence-report-form');
 
         // --- FUNÇÕES AUXILIARES ---
         const sanitizeHTML = (str) => {
@@ -495,7 +502,7 @@
 
                 if (event === 'SIGNED_OUT') {
                     showNotification('Você foi desconectado com sucesso.');
-                    if (window.location.hash !== '') window.location.hash = '#';
+                    if (window.location.hash !== '#') window.location.hash = '#';
                 } else if (event === 'SIGNED_IN' && !wasLoggedIn) {
                     if (window.location.hash !== '#admin') window.location.hash = '#admin';
                 }
@@ -522,9 +529,10 @@
                     return;
                 }
 
-                // Gerencia a visibilidade das páginas
                 mainContent.style.display = 'none';
-                Object.values(pages).forEach(page => page && (page.style.display = 'none'));
+                Object.values(pages).forEach(page => {
+                    if(page) page.style.display = 'none';
+                });
                 
                 if (targetPageKey === 'main') {
                     mainContent.style.display = 'block';
@@ -532,11 +540,11 @@
                     const element = document.getElementById(elementId);
                     if (element && mainContent.contains(element)) {
                          element.scrollIntoView({ behavior: 'smooth' });
-                    } else {
+                    } else if(hash === '#') {
                         window.scrollTo(0, 0);
                     }
                 } else if (pages[targetPageKey]) {
-                    pages[targetPageKey].style.display = 'flex'; // ou 'block' se for o caso
+                    pages[targetPageKey].style.display = 'block';
                     window.scrollTo(0, 0);
                      if (targetPageKey === 'admin') {
                         await this.loadAdminData();
@@ -554,13 +562,10 @@
                 adminLinks.classList.toggle('hidden', !isLoggedIn);
                 adminLinks.classList.toggle('md:flex', isLoggedIn);
 
-                const tokenTab = document.getElementById('token-generation-tab');
-                const userManagementTab = document.getElementById('user-management-tab');
                 const canManageUsers = ['Developer', 'Admin'].includes(currentUserRole);
+                document.getElementById('user-management-tab')?.classList.toggle('hidden', !canManageUsers);
+                document.getElementById('token-generation-tab')?.classList.toggle('hidden', !canManageUsers);
                 
-                if(tokenTab) tokenTab.classList.toggle('hidden', !canManageUsers);
-                if(userManagementTab) userManagementTab.classList.toggle('hidden', !canManageUsers);
-
                 if (['Developer', 'Admin', 'Oficial'].includes(currentUserRole)) {
                     const reportLink = document.createElement('a');
                     reportLink.href = '#relatorio';
@@ -570,7 +575,6 @@
                     document.getElementById('study-material-link')?.insertAdjacentElement('afterend', reportLink);
                 }
 
-                // Atualiza menu mobile
                 mobileMenu.innerHTML = '';
                 const baseLinks = document.querySelectorAll('#nav-links a');
                 const authActionLinks = isLoggedIn 
@@ -596,28 +600,40 @@
                     await this.loadUserManagementPanel();
                 }
                 
-                const reportsContainer = document.getElementById('reports-container');
-                if (reportsContainer) {
-                    reportsContainer.innerHTML = '<p class="text-slate-400">Carregando denúncias...</p>';
-                    const { data: reports, error } = await supabase.from('denuncias').select('*').order('created_at', { ascending: false });
+                const denunciasContainer = document.getElementById('tab-content-denuncias');
+                if (denunciasContainer) {
+                    denunciasContainer.innerHTML = '<p class="text-slate-400">Carregando denúncias...</p>';
+                    const { data, error } = await supabase.from('denuncias').select('*').order('created_at', { ascending: false });
                     if (error) {
-                        reportsContainer.innerHTML = `<p class="text-red-400">Erro: ${error.message}</p>`;
+                        denunciasContainer.innerHTML = `<p class="text-red-400">Erro: ${error.message}</p>`;
                     } else {
-                        reportsContainer.innerHTML = reports.length === 0 ? '<p class="text-slate-400">Nenhuma denúncia encontrada.</p>' : reports.map(r => `
+                        denunciasContainer.innerHTML = data.length === 0 ? '<p class="text-slate-400">Nenhuma denúncia encontrada.</p>' : data.map(r => `
                             <div class="card p-4 rounded-lg"><div class="flex justify-between items-start gap-2"><h3 class="font-bold text-white">${sanitizeHTML(r.tipo_crime)}</h3><span class="text-xs text-slate-500">${new Date(r.created_at).toLocaleString('pt-BR')}</span></div><p class="text-sm text-sky-400 font-mono">${sanitizeHTML(r.localizacao)}</p><p class="mt-2 text-slate-300 bg-slate-800/50 p-3 rounded break-words">${sanitizeHTML(r.detalhes)}</p></div>`).join('');
                     }
                 }
 
-                const intelReportsContainer = document.getElementById('intelligence-reports-container');
+                const intelReportsContainer = document.getElementById('tab-content-reports');
                 if(intelReportsContainer) {
                     intelReportsContainer.innerHTML = '<p class="text-slate-400">Carregando relatórios...</p>';
-                    const { data: intelReports, error: intelError } = await supabase.from('relatorios').select(`*, profiles ( email )`).order('created_at', { ascending: false });
+                    const { data: intelReports, error: intelError } = await supabase.from('relatorios').select(`id, created_at, titulo, descricao, imagem_urls, profiles ( email )`).order('created_at', { ascending: false });
                     if(intelError){
                         intelReportsContainer.innerHTML = `<p class="text-red-400">Erro: ${intelError.message}</p>`;
                     } else {
                         intelReportsContainer.innerHTML = intelReports.length === 0 ? '<p class="text-slate-400">Nenhum relatório encontrado.</p>' : intelReports.map(r => {
-                            const imagesHTML = (r.imagem_urls || []).map(url => `<img src="${url}" class="max-w-full h-auto rounded-md border border-slate-700">`).join('');
-                            return `<div class="card p-4 rounded-lg"><div class="flex justify-between items-start gap-2 mb-2"><div><h3 class="font-bold text-white">${sanitizeHTML(r.titulo)}</h3><p class="text-xs text-slate-400">Por: ${r.profiles ? sanitizeHTML(r.profiles.email) : 'N/A'}</p></div><span class="text-xs text-slate-500">${new Date(r.created_at).toLocaleString('pt-BR')}</span></div><p class="text-slate-300 text-sm mb-4">${sanitizeHTML(r.descricao)}</p><div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-4">${imagesHTML}</div></div>`;
+                            const hasImages = (r.imagem_urls || []).length > 0;
+                            const imagesHTML = hasImages ? (r.imagem_urls || []).map(url => `<a href="${url}" target="_blank" rel="noopener noreferrer"><img src="${url}" class="max-w-full h-auto rounded-md border border-slate-700 hover:opacity-80 transition-opacity"></a>`).join('') : '';
+                            return `<div class="card p-4 rounded-lg"><div class="flex justify-between items-start gap-2 mb-2"><div><h3 class="font-bold text-white">${sanitizeHTML(r.titulo)}</h3><p class="text-xs text-slate-400">Por: ${r.profiles ? sanitizeHTML(r.profiles.email) : 'N/A'}</p></div><span class="text-xs text-slate-500">${new Date(r.created_at).toLocaleString('pt-BR')}</span></div><p class="text-slate-300 text-sm mb-4">${sanitizeHTML(r.descricao)}</p>
+                            ${hasImages ? `
+                            <div class="mt-4">
+                                <button data-action="toggle-images" data-report-id="${r.id}" class="flex items-center space-x-2 text-sm text-sky-400 hover:text-sky-300 font-semibold">
+                                    <span>Ver Imagens</span>
+                                    <svg class="w-4 h-4 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </button>
+                                <div id="images-container-${r.id}" class="hidden grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+                                    ${imagesHTML}
+                                </div>
+                            </div>` : ''}
+                            </div>`;
                         }).join('');
                     }
                 }
@@ -697,7 +713,6 @@
             },
 
             bindEvents() {
-                // Eventos do Header
                 header.addEventListener('click', (e) => {
                     const menuBtn = e.target.closest('#menu-btn');
                     if (menuBtn) {
@@ -712,96 +727,119 @@
                     }
                 });
 
-                // Submissão de Formulários
-                document.body.addEventListener('submit', async (e) => {
+                loginForm?.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    if (e.target.id === 'report-form') {
-                         const { error } = await supabase.from('denuncias').insert([{ tipo_crime: e.target.elements['report-crime'].value, localizacao: e.target.elements['report-location'].value, detalhes: e.target.elements['report-details'].value }]);
-                         showNotification(error ? 'Erro ao enviar denúncia.' : 'Denúncia enviada com sucesso!');
-                         if(!error) e.target.reset();
-                    }
-                    if (e.target.id === 'login-form') {
-                        const { error } = await supabase.auth.signInWithPassword({ email: e.target.elements['login-email'].value, password: e.target.elements['login-password'].value });
-                        if (error) document.getElementById('login-error').textContent = 'Email ou senha inválidos.', document.getElementById('login-error').classList.remove('hidden');
-                    }
-                    if (e.target.id === 'register-form') {
-                        const msgEl = document.getElementById('register-message');
-                        msgEl.textContent = 'Verificando token...';
-                        msgEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-yellow-400 bg-yellow-900/50 block';
-                        const { data: tokenData, error: tokenError } = await supabase.from('tokens').select('*').eq('token', e.target.elements['register-token'].value).single();
-                        if (tokenError || !tokenData || tokenData.usado) {
-                            msgEl.textContent = 'Token inválido ou já utilizado.';
-                            msgEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
-                            return;
-                        }
-                        const { error: signUpError } = await supabase.auth.signUp({ email: e.target.elements['register-email'].value, password: e.target.elements['register-password'].value });
-                        if (signUpError) {
-                            msgEl.textContent = 'Erro: ' + signUpError.message;
-                            msgEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
-                        } else {
-                            await supabase.from('tokens').update({ usado: true }).eq('id', tokenData.id);
-                            msgEl.textContent = 'Conta criada! Verifique seu email para confirmação.';
-                            msgEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-green-400 bg-green-900/50 block';
-                            e.target.reset();
-                        }
-                    }
-                    if (e.target.id === 'intelligence-report-form') {
-                        const feedbackEl = document.getElementById('intel-report-feedback');
-                        const { data: { user } } = await supabase.auth.getUser();
-                        if (!user) { feedbackEl.textContent = 'Sessão expirada. Faça login novamente.'; return; }
-                        if (selectedFiles.length === 0) { feedbackEl.textContent = 'Anexe pelo menos uma imagem.'; return; }
-                        
-                        feedbackEl.textContent = 'Enviando...';
-                        feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-yellow-400 bg-yellow-900/50 block';
-                        
-                        const uploadPromises = selectedFiles.map(file => supabase.storage.from('relatorios').upload(`${user.id}/${Date.now()}_${file.name}`, file));
-                        const uploadResults = await Promise.all(uploadPromises);
-                        const uploadErrors = uploadResults.filter(result => result.error);
-                        
-                        if (uploadErrors.length > 0) { feedbackEl.textContent = `Erro no upload de ${uploadErrors.length} imagem(ns).`; return; }
+                    const loginButton = document.getElementById('login-button');
+                    const loginError = document.getElementById('login-error');
+                    loginButton.disabled = true;
+                    loginButton.textContent = 'Entrando...';
+                    loginError.classList.add('hidden');
 
-                        const imageUrls = uploadResults.map(r => supabase.storage.from('relatorios').getPublicUrl(r.data.path).data.publicUrl);
-                        const { error: insertError } = await supabase.from('relatorios').insert({ titulo: e.target.elements['report-title'].value, descricao: e.target.elements['report-description'].value, imagem_urls: imageUrls, user_id: user.id });
+                    const { error } = await supabase.auth.signInWithPassword({ 
+                        email: e.target.elements['login-email'].value, 
+                        password: e.target.elements['login-password'].value 
+                    });
 
-                        feedbackEl.textContent = insertError ? 'Erro ao salvar relatório.' : 'Relatório enviado com sucesso!';
-                        if (!insertError) {
-                            e.target.reset();
-                            this.handleFileSelect([]);
-                            setTimeout(() => window.location.hash = '#admin', 2000);
-                        }
+                    if (error) {
+                        loginError.textContent = 'Email ou senha inválidos.';
+                        loginError.classList.remove('hidden');
+                    }
+                    loginButton.disabled = false;
+                    loginButton.textContent = 'Entrar';
+                });
+
+                registerForm?.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const msgEl = document.getElementById('register-message');
+                    msgEl.textContent = 'Verificando token...';
+                    msgEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-yellow-400 bg-yellow-900/50 block';
+                    const { data: tokenData, error: tokenError } = await supabase.from('tokens').select('*').eq('token', e.target.elements['register-token'].value).single();
+                    if (tokenError || !tokenData || tokenData.usado) {
+                        msgEl.textContent = 'Token inválido ou já utilizado.';
+                        msgEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
+                        return;
+                    }
+                    const { error: signUpError } = await supabase.auth.signUp({ email: e.target.elements['register-email'].value, password: e.target.elements['register-password'].value });
+                    if (signUpError) {
+                        msgEl.textContent = 'Erro: ' + signUpError.message;
+                        msgEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
+                    } else {
+                        await supabase.from('tokens').update({ usado: true }).eq('id', tokenData.id);
+                        msgEl.textContent = 'Conta criada! Verifique seu email para confirmação.';
+                        msgEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-green-400 bg-green-900/50 block';
+                        e.target.reset();
                     }
                 });
 
-                // Outros Eventos de Clique
+                reportForm?.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const { error } = await supabase.from('denuncias').insert([{ tipo_crime: e.target.elements['report-crime'].value, localizacao: e.target.elements['report-location'].value, detalhes: e.target.elements['report-details'].value }]);
+                    showNotification(error ? 'Erro ao enviar denúncia.' : 'Denúncia enviada com sucesso!');
+                    if(!error) e.target.reset();
+                });
+
+                intelligenceReportForm?.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const feedbackEl = document.getElementById('intel-report-feedback');
+                    const { data: { user } } = await supabase.auth.getUser();
+                    if (!user) { feedbackEl.textContent = 'Sessão expirada. Faça login novamente.'; return; }
+                    if (selectedFiles.length === 0) { feedbackEl.textContent = 'Anexe pelo menos uma imagem.'; return; }
+                    
+                    feedbackEl.textContent = 'Enviando...';
+                    feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-yellow-400 bg-yellow-900/50 block';
+                    
+                    const uploadPromises = selectedFiles.map(file => supabase.storage.from('relatorios').upload(`${user.id}/${Date.now()}_${file.name}`, file));
+                    const uploadResults = await Promise.all(uploadPromises);
+                    const uploadErrors = uploadResults.filter(result => result.error);
+                    
+                    if (uploadErrors.length > 0) { feedbackEl.textContent = `Erro no upload de ${uploadErrors.length} imagem(ns).`; return; }
+
+                    const imageUrls = uploadResults.map(r => supabase.storage.from('relatorios').getPublicUrl(r.data.path).data.publicUrl);
+                    const { error: insertError } = await supabase.from('relatorios').insert({ titulo: e.target.elements['report-title'].value, descricao: e.target.elements['report-description'].value, imagem_urls: imageUrls, user_id: user.id });
+
+                    feedbackEl.textContent = insertError ? 'Erro ao salvar relatório.' : 'Relatório enviado com sucesso!';
+                    if (!insertError) {
+                        e.target.reset();
+                        this.handleFileSelect([]);
+                        setTimeout(() => window.location.hash = '#admin', 2000);
+                    }
+                });
+
                 document.body.addEventListener('click', (e) => {
                     if (e.target.closest('#logout-button')) supabase.auth.signOut();
                     if (e.target.closest('#generate-token-btn')) this.handleGenerateToken();
                     if (e.target.closest('#copy-token-btn')) {
-                        const input = document.getElementById('new-token-input');
-                        navigator.clipboard.writeText(input.value).then(() => showNotification('Token copiado!'));
+                        navigator.clipboard.writeText(document.getElementById('new-token-input').value).then(() => showNotification('Token copiado!'));
                     }
                     if (e.target.closest('#open-penal-code-btn')) penalCodeModal.classList.remove('hidden');
                     if (e.target.closest('#close-penal-code-btn') || e.target === penalCodeModal) penalCodeModal.classList.add('hidden');
                 });
 
-                // Abas do Admin
-                document.getElementById('admin-tabs')?.addEventListener('click', (e) => {
-                     if (e.target.tagName === 'BUTTON') {
-                         document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-                         e.target.classList.add('active');
+                document.getElementById('admin-nav')?.addEventListener('click', (e) => {
+                     const button = e.target.closest('.admin-nav-button');
+                     if (button) {
+                         document.querySelectorAll('.admin-nav-button').forEach(btn => btn.classList.remove('active'));
+                         button.classList.add('active');
                          document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
-                         document.getElementById(`tab-content-${e.target.dataset.tab}`)?.classList.remove('hidden');
+                         document.getElementById(`tab-content-${button.dataset.tab}`)?.classList.remove('hidden');
                      }
                 });
                 
-                // Gerenciamento de Usuários
-                document.getElementById('user-list-container')?.addEventListener('change', (e) => {
-                    if (e.target.tagName === 'SELECT') {
-                        this.updateUserRole(e.target.dataset.userId, e.target.value);
+                document.getElementById('admin-tab-content')?.addEventListener('click', (e) => {
+                    const toggleButton = e.target.closest('[data-action="toggle-images"]');
+                    if (toggleButton) {
+                        const reportId = toggleButton.dataset.reportId;
+                        const imagesContainer = document.getElementById(`images-container-${reportId}`);
+                        const arrowIcon = toggleButton.querySelector('svg');
+                        imagesContainer?.classList.toggle('hidden');
+                        arrowIcon?.classList.toggle('rotate-180');
                     }
                 });
+                
+                document.getElementById('user-list-container')?.addEventListener('change', (e) => {
+                    if (e.target.tagName === 'SELECT') this.updateUserRole(e.target.dataset.userId, e.target.value);
+                });
 
-                // Drag and Drop
                 const dropZone = document.getElementById('drop-zone');
                 if(dropZone) {
                     const fileInput = document.getElementById('report-image-input');
