@@ -87,7 +87,7 @@
 </head>
 <body class="antialiased">
 
-    <div id="global-notification" class="hidden fixed top-5 right-5 bg-green-600 text-white py-2 px-4 rounded-lg shadow-lg z-50 fade-in"></div>
+    <div id="global-notification" class="hidden fixed top-5 right-5 bg-green-600 text-white py-2 px-4 rounded-lg shadow-lg z-[60] fade-in"></div>
 
     <!-- Cabeçalho -->
     <header id="header" class="bg-slate-950/80 backdrop-blur-sm sticky top-0 z-50 border-b border-slate-800">
@@ -797,8 +797,16 @@
                     e.preventDefault();
                     const feedbackEl = document.getElementById('intel-report-feedback');
                     const { data: { user } } = await supabase.auth.getUser();
-                    if (!user) { feedbackEl.textContent = 'Sessão expirada. Faça login novamente.'; return; }
-                    if (selectedFiles.length === 0) { feedbackEl.textContent = 'Anexe pelo menos uma imagem.'; return; }
+                    if (!user) { 
+                        feedbackEl.textContent = 'Sessão expirada. Faça login novamente.'; 
+                        feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
+                        return; 
+                    }
+                    if (selectedFiles.length === 0) { 
+                        feedbackEl.textContent = 'Anexe pelo menos uma imagem.';
+                        feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
+                        return; 
+                    }
                     
                     feedbackEl.textContent = 'Enviando...';
                     feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-yellow-400 bg-yellow-900/50 block';
@@ -807,13 +815,21 @@
                     const uploadResults = await Promise.all(uploadPromises);
                     const uploadErrors = uploadResults.filter(result => result.error);
                     
-                    if (uploadErrors.length > 0) { feedbackEl.textContent = `Erro no upload de ${uploadErrors.length} imagem(ns).`; return; }
+                    if (uploadErrors.length > 0) { 
+                        feedbackEl.textContent = `Erro no upload de ${uploadErrors.length} imagem(ns).`; 
+                        feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
+                        return;
+                    }
 
                     const imageUrls = uploadResults.map(r => supabase.storage.from('relatorios').getPublicUrl(r.data.path).data.publicUrl);
                     const { error: insertError } = await supabase.from('relatorios').insert({ titulo: e.target.elements['report-title'].value, descricao: e.target.elements['report-description'].value, imagem_urls: imageUrls, user_id: user.id });
 
-                    feedbackEl.textContent = insertError ? 'Erro ao salvar relatório.' : 'Relatório enviado com sucesso!';
-                    if (!insertError) {
+                    if (insertError) {
+                        feedbackEl.textContent = 'Erro ao salvar o relatório: ' + insertError.message;
+                        feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
+                    } else {
+                        feedbackEl.textContent = 'Relatório enviado com sucesso!';
+                        feedbackEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-green-400 bg-green-900/50 block';
                         e.target.reset();
                         this.handleFileSelect([]);
                         setTimeout(() => window.location.hash = '#admin', 2000);
