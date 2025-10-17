@@ -152,7 +152,7 @@
                         </div>
                     </div>
                     <div class="order-1 md:order-2">
-                        <img src="https://images.unsplash.com/photo-1622039601035-d16045d45464?q=80&w=1974&auto=format&fit=crop" alt="Equipe do DEIC em planejamento" class="rounded-lg shadow-2xl shadow-slate-900/50">
+                        <img src="reudeic.png" alt="Equipe do DEIC em planejamento" class="rounded-lg shadow-2xl shadow-slate-900/50">
                     </div>
                 </div>
             </div>
@@ -242,6 +242,7 @@
                     <h2 class="text-3xl font-bold text-white text-center mb-6">Criar Conta de Oficial</h2>
                     <form id="register-form">
                         <div class="mb-4"><label for="register-email" class="block text-slate-400 mb-2">Email</label><input required type="email" id="register-email" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-sky-500"></div>
+                        <div class="mb-4"><label for="register-username" class="block text-slate-400 mb-2">Nome de Usuário</label><input required type="text" id="register-username" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-sky-500"></div>
                         <div class="mb-4"><label for="register-password" class="block text-slate-400 mb-2">Senha</label><input required type="password" id="register-password" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-sky-500"></div>
                         <div class="mb-6"><label for="register-token" class="block text-slate-400 mb-2">Token de Acesso</label><input required type="text" id="register-token" placeholder="Solicite ao seu superior" class="bg-slate-900 border border-slate-700 rounded-lg p-3 text-white w-full focus:outline-none focus:ring-2 focus:ring-sky-500"></div>
                         <button type="submit" class="bg-sky-500 text-white font-bold py-3 px-8 rounded-lg hover:bg-sky-600 transition-all duration-300 ease-in-out transform hover:scale-105 shadow-lg shadow-sky-500/20 w-full">Registrar</button>
@@ -490,54 +491,43 @@
             },
 
             async handleAuthStateChange(event, session) {
-                // This function is now the single source of truth for the user's authentication state.
                 const wasLoggedIn = !!currentUserRole;
                 currentUserRole = session ? await fetchUserRole(session.user.id) : null;
                 
                 await this.updateUI();
 
-                // If the app wasn't ready, it means this is the first auth check on page load.
-                // We now mark it as ready and run the router for the first time.
                 if (!appReady) {
                     appReady = true;
                     await this.handleRouteChange();
                 }
 
-                // Handle navigation redirects after state changes
                 if (event === 'SIGNED_OUT') {
                     showNotification('Você foi desconectado com sucesso.');
-                    // The router will handle redirecting away from protected pages.
                     await this.handleRouteChange();
                 } else if (event === 'SIGNED_IN' && !wasLoggedIn) {
-                    // If a user just signed in, the router will redirect them to the admin panel.
                     await this.handleRouteChange();
                 }
             },
 
             async handleRouteChange() {
-                // Don't run the router until the first authentication check is complete.
                 if (!appReady) return;
 
                 const hash = window.location.hash || '#';
                 const isLoggedIn = !!currentUserRole;
 
-                // --- Route Protection and Redirect Logic ---
                 const isProtectedRoute = hash.startsWith('#admin') || hash.startsWith('#relatorio');
                 const isAuthPage = hash.startsWith('#login') || hash.startsWith('#register');
 
                 if (isProtectedRoute && !isLoggedIn) {
-                    // User is logged out but tries to access a protected page. Redirect to login.
                     window.location.hash = '#login';
-                    return; // Stop execution and let the new hash trigger the router again.
+                    return;
                 }
                 
                 if (isAuthPage && isLoggedIn) {
-                    // User is logged in but tries to access login/register page. Redirect to admin panel.
                     window.location.hash = '#admin';
                     return;
                 }
                 
-                // --- Page Visibility Logic ---
                 let targetPageKey = 'main';
                 if (hash.startsWith('#login')) targetPageKey = 'login';
                 else if (hash.startsWith('#register')) targetPageKey = 'register';
@@ -630,14 +620,14 @@
                 const intelReportsContainer = document.getElementById('tab-content-reports');
                 if(intelReportsContainer) {
                     intelReportsContainer.innerHTML = '<p class="text-slate-400">Carregando relatórios...</p>';
-                    const { data: intelReports, error: intelError } = await supabase.from('relatorios').select(`id, created_at, titulo, descricao, imagem_urls, profiles ( email )`).order('created_at', { ascending: false });
+                    const { data: intelReports, error: intelError } = await supabase.from('relatorios').select(`id, created_at, titulo, descricao, imagem_urls, profiles ( username )`).order('created_at', { ascending: false });
                     if(intelError){
                         intelReportsContainer.innerHTML = `<p class="text-red-400">Erro: ${intelError.message}</p>`;
                     } else {
                         intelReportsContainer.innerHTML = intelReports.length === 0 ? '<p class="text-slate-400">Nenhum relatório encontrado.</p>' : intelReports.map(r => {
                             const hasImages = (r.imagem_urls || []).length > 0;
                             const imagesHTML = hasImages ? (r.imagem_urls || []).map(url => `<a href="${url}" target="_blank" rel="noopener noreferrer"><img src="${url}" class="max-w-full h-auto rounded-md border border-slate-700 hover:opacity-80 transition-opacity"></a>`).join('') : '';
-                            return `<div class="card p-4 rounded-lg"><div class="flex justify-between items-start gap-2 mb-2"><div><h3 class="font-bold text-white">${sanitizeHTML(r.titulo)}</h3><p class="text-xs text-slate-400">Por: ${r.profiles ? sanitizeHTML(r.profiles.email) : 'N/A'}</p></div><span class="text-xs text-slate-500">${new Date(r.created_at).toLocaleString('pt-BR')}</span></div><p class="text-slate-300 text-sm mb-4">${sanitizeHTML(r.descricao)}</p>
+                            return `<div class="card p-4 rounded-lg"><div class="flex justify-between items-start gap-2 mb-2"><div><h3 class="font-bold text-white">${sanitizeHTML(r.titulo)}</h3><p class="text-xs text-slate-400">Por: ${r.profiles ? sanitizeHTML(r.profiles.username) : 'N/A'}</p></div><span class="text-xs text-slate-500">${new Date(r.created_at).toLocaleString('pt-BR')}</span></div><p class="text-slate-300 text-sm mb-4">${sanitizeHTML(r.descricao)}</p>
                             ${hasImages ? `
                             <div class="mt-4">
                                 <button data-action="toggle-images" data-report-id="${r.id}" class="flex items-center space-x-2 text-sm text-sky-400 hover:text-sky-300 font-semibold">
@@ -661,7 +651,7 @@
 
                 const [{ data: roles, error: rolesError }, { data: profiles, error: profilesError }] = await Promise.all([
                     supabase.from('roles').select('*'),
-                    supabase.from('profiles').select('id, email, role_id')
+                    supabase.rpc('get_confirmed_users')
                 ]);
 
                 if (rolesError || profilesError) {
@@ -669,10 +659,10 @@
                     return;
                 }
 
-                container.innerHTML = profiles.length === 0 ? '<p class="text-slate-400">Nenhum usuário encontrado.</p>' : profiles.map(p => {
+                container.innerHTML = profiles.length === 0 ? '<p class="text-slate-400">Nenhum usuário confirmado encontrado.</p>' : profiles.map(p => {
                     const isDeveloper = p.role_id === 1;
                     const options = roles.filter(r => currentUserRole === 'Developer' || r.id !== 1).map(r => `<option value="${r.id}" ${p.role_id === r.id ? 'selected' : ''}>${r.name}</option>`).join('');
-                    return `<div class="card p-4 rounded-lg flex justify-between items-center"><p class="text-slate-300">${sanitizeHTML(p.email)}</p><select data-user-id="${p.id}" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white" ${isDeveloper && currentUserRole !== 'Developer' ? 'disabled' : ''}>${options}</select></div>`;
+                    return `<div class="card p-4 rounded-lg flex justify-between items-center"><p class="text-slate-300">${sanitizeHTML(p.username)}</p><select data-user-id="${p.id}" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white" ${isDeveloper && currentUserRole !== 'Developer' ? 'disabled' : ''}>${options}</select></div>`;
                 }).join('');
             },
             
@@ -767,6 +757,7 @@
                     e.preventDefault();
                     const msgEl = document.getElementById('register-message');
                     const email = e.target.elements['register-email'].value;
+                    const username = e.target.elements['register-username'].value;
                     const password = e.target.elements['register-password'].value;
                     const token = e.target.elements['register-token'].value;
 
@@ -786,6 +777,7 @@
                         password: password,
                         options: {
                             data: {
+                                username: username,
                                 registration_token: token
                             }
                         }
@@ -856,13 +848,12 @@
                     if (logoutButton) {
                         logoutButton.disabled = true;
                         logoutButton.textContent = 'Saindo...';
-                        try {
-                            const { error } = await supabase.auth.signOut();
-                            if (error) throw error;
-                        } catch (error) {
+                        
+                        const { error } = await supabase.auth.signOut();
+
+                        if (error && error.message !== 'Auth session missing!') {
                             console.error('Logout failed:', error);
                             showNotification(`Erro ao sair: ${error.message}`);
-                            // Re-enable button on failure so user can try again
                             logoutButton.disabled = false;
                             logoutButton.textContent = 'Sair';
                         }
