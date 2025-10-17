@@ -502,6 +502,12 @@
                 }
 
                 if (event === 'SIGNED_OUT') {
+                    // Failsafe: Redefine o botão de logout para garantir que ele não fique travado.
+                    const logoutButton = document.getElementById('logout-button');
+                    if (logoutButton) {
+                        logoutButton.disabled = false;
+                        logoutButton.textContent = 'Sair';
+                    }
                     showNotification('Você foi desconectado com sucesso.');
                     await this.handleRouteChange();
                 } else if (event === 'SIGNED_IN' && !wasLoggedIn) {
@@ -646,20 +652,33 @@
             
             async loadUserManagementPanel() {
                 const container = document.getElementById('user-list-container');
-                if(!container) return;
+                if (!container) return;
                 container.innerHTML = '<p class="text-slate-400">Carregando usuários...</p>';
-
-                const [{ data: roles, error: rolesError }, { data: profiles, error: profilesError }] = await Promise.all([
-                    supabase.from('roles').select('*'),
-                    supabase.rpc('get_confirmed_users')
-                ]);
-
-                if (rolesError || profilesError) {
-                     container.innerHTML = `<p class="text-red-400">Erro ao carregar dados.</p>`;
+                
+                const { data: roles, error: rolesError } = await supabase.from('roles').select('*');
+                if (rolesError) {
+                    console.error('Error fetching roles:', rolesError);
+                    container.innerHTML = `<p class="text-red-400">Erro ao carregar cargos: ${rolesError.message}</p>`;
                     return;
                 }
 
-                container.innerHTML = profiles.length === 0 ? '<p class="text-slate-400">Nenhum usuário confirmado encontrado.</p>' : profiles.map(p => {
+                const { data: profiles, error: profilesError } = await supabase.rpc('get_confirmed_users');
+                 if (profilesError) {
+                    console.error('Error fetching confirmed users:', profilesError);
+                    let friendlyError = `Erro ao carregar usuários: ${profilesError.message}.`;
+                    if (profilesError.message.includes('match function')) {
+                        friendlyError += ' Isso pode indicar um problema com a função no banco de dados. Verifique se o script SQL foi executado corretamente no Supabase.';
+                    }
+                    container.innerHTML = `<p class="text-red-400">${friendlyError}</p>`;
+                    return;
+                }
+                
+                if (!profiles || profiles.length === 0) {
+                     container.innerHTML = '<p class="text-slate-400">Nenhum usuário confirmado encontrado.</p>';
+                     return;
+                }
+
+                container.innerHTML = profiles.map(p => {
                     const isDeveloper = p.role_id === 1;
                     const options = roles.filter(r => currentUserRole === 'Developer' || r.id !== 1).map(r => `<option value="${r.id}" ${p.role_id === r.id ? 'selected' : ''}>${r.name}</option>`).join('');
                     return `<div class="card p-4 rounded-lg flex justify-between items-center"><p class="text-slate-300">${sanitizeHTML(p.username)}</p><select data-user-id="${p.id}" class="bg-slate-800 border border-slate-600 rounded-lg p-2 text-white" ${isDeveloper && currentUserRole !== 'Developer' ? 'disabled' : ''}>${options}</select></div>`;
@@ -913,5 +932,5 @@
     </script>
 </body>
 </html>
-"
+
 
