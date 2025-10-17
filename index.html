@@ -751,21 +751,36 @@
                 registerForm?.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     const msgEl = document.getElementById('register-message');
+                    const email = e.target.elements['register-email'].value;
+                    const password = e.target.elements['register-password'].value;
+                    const token = e.target.elements['register-token'].value;
+
                     msgEl.textContent = 'Verificando token...';
                     msgEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-yellow-400 bg-yellow-900/50 block';
-                    const { data: tokenData, error: tokenError } = await supabase.from('tokens').select('*').eq('token', e.target.elements['register-token'].value).single();
+                    
+                    const { data: tokenData, error: tokenError } = await supabase.from('tokens').select('*').eq('token', token).single();
+
                     if (tokenError || !tokenData || tokenData.usado) {
                         msgEl.textContent = 'Token inválido ou já utilizado.';
                         msgEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
                         return;
                     }
-                    const { error: signUpError } = await supabase.auth.signUp({ email: e.target.elements['register-email'].value, password: e.target.elements['register-password'].value });
+
+                    const { error: signUpError } = await supabase.auth.signUp({
+                        email: email,
+                        password: password,
+                        options: {
+                            data: {
+                                registration_token: token
+                            }
+                        }
+                    });
+
                     if (signUpError) {
-                        msgEl.textContent = 'Erro: ' + signUpError.message;
+                        msgEl.textContent = 'Erro ao criar conta: ' + signUpError.message;
                         msgEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-red-400 bg-red-900/50 block';
                     } else {
-                        await supabase.from('tokens').update({ usado: true }).eq('id', tokenData.id);
-                        msgEl.textContent = 'Conta criada! Verifique seu email para confirmação.';
+                        msgEl.textContent = 'Conta criada com sucesso! Verifique seu email para confirmação.';
                         msgEl.className = 'mt-4 text-center px-4 py-2 rounded-lg text-sm text-green-400 bg-green-900/50 block';
                         e.target.reset();
                     }
