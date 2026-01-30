@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DEIC - Polícia Civil | Brasil Roleplay</title>
+
+  <!-- Favicon e Ícones PWA -->
+  <link rel="icon" type="image/jpeg" href="./logodeic-circle.jpg">
+  <link rel="apple-touch-icon" href="./logodeic-circle.jpg">
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#020617">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <script type="module" src="https://cdn.jsdelivr.net/npm/ldrs/dist/auto/hatch.js"></script>
+  <style>
+    :root {
+      --primary-blue: #0ea5e9;
+      --dark-bg: #020617;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--dark-bg);
+      color: #e2e8f0;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Animation Utilities */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade-in {
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+
+    /* Text Gradient Animation */
+    @keyframes gradientMove {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      50% {
+        background-position: 100% 50%;
+      }
+
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    .animate-gradient-text {
+      background-size: 200% auto;
+      animation: gradientMove 3s linear infinite;
+    }
+
+    /* Scroll Animations */
+    @keyframes slideInFromLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-50px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes slideOutToLeft {
+      from {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateX(-50px);
+      }
+    }
+
+
+    .scroll-animate {
+      opacity: 0;
+      transform: translateX(-50px);
+    }
+
+    .scroll-animate.animate-down {
+      animation: slideInFromLeft 0.6s ease-out forwards;
+    }
+
+    .scroll-animate.animate-up {
+      animation: slideOutToLeft 0.6s ease-out forwards;
+    }
+
+    /* Stagger delays for cards */
+    .scroll-animate:nth-child(1) {
+      transition-delay: 0ms;
+    }
+
+    .scroll-animate:nth-child(2) {
+      transition-delay: 100ms;
+    }
+
+    .scroll-animate:nth-child(3) {
+      transition-delay: 200ms;
+    }
+
+    .scroll-animate:nth-child(4) {
+      transition-delay: 300ms;
+    }
+
+    .scroll-animate.animate-down:nth-child(1) {
+      animation-delay: 0ms;
+    }
+
+    .scroll-animate.animate-down:nth-child(2) {
+      animation-delay: 100ms;
+    }
+
+    .scroll-animate.animate-down:nth-child(3) {
+      animation-delay: 200ms;
+    }
+
+    .scroll-animate.animate-down:nth-child(4) {
+      animation-delay: 300ms;
+    }
+
+    .scroll-animate.animate-up:nth-child(1) {
+      animation-delay: 0ms;
+    }
+
+    .scroll-animate.animate-up:nth-child(2) {
+      animation-delay: 100ms;
+    }
+
+    .scroll-animate.animate-up:nth-child(3) {
+      animation-delay: 200ms;
+    }
+
+    .scroll-animate.animate-up:nth-child(4) {
+      animation-delay: 300ms;
+    }
+
+    .scroll-animate.animate:nth-child(4) {
+      animation-delay: 300ms;
+    }
+  </style>
+  <script type="importmap">
+{
+  "imports": {
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.48.1",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.11.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.562.0"
+  }
+}
+</script>
+  <link rel="stylesheet" href="./index.css">
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="./index.tsx"></script>
+</body>
+
+</html>

@@ -1,0 +1,17 @@
+{
+    "name": "DEIC - Brasil Roleplay",
+    "short_name": "DEIC",
+    "description": "Polícia Civil Estado Brasil - Divisão Especializada de Investigações Criminais",
+    "start_url": "/DEIC/",
+    "display": "standalone",
+    "background_color": "#020617",
+    "theme_color": "#0ea5e9",
+    "icons": [
+        {
+            "src": "./logodeic-circle.jpg",
+            "sizes": "512x512",
+            "type": "image/jpeg",
+            "purpose": "any maskable"
+        }
+    ]
+}
