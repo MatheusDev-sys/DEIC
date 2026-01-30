@@ -50,7 +50,7 @@ export const Layout: React.FC = () => {
             {/* Desktop Menu */}
             <div className="hidden md:flex items-center space-x-8">
               <button onClick={() => scrollToSection('about')} className="text-slate-300 hover:text-sky-400 transition font-medium">Sobre</button>
-              
+
               {!session && (
                 <>
                   <button onClick={() => scrollToSection('divisions')} className="text-slate-300 hover:text-sky-400 transition font-medium">Divisões</button>
@@ -60,14 +60,14 @@ export const Layout: React.FC = () => {
                 </>
               )}
 
-              {session && isOficial && (
+              {session && userRole && isOficial && (
                 <>
                   <Link to="/intel-report" className="text-slate-300 hover:text-sky-400 transition font-medium">Relatório</Link>
                   <Link to="/admin" className="text-slate-300 hover:text-sky-400 transition font-medium">Denúncias</Link>
                 </>
               )}
-              
-              {session && isAdmin && (
+
+              {session && userRole && isAdmin && (
                 <Link to="/admin" className="text-sky-400 font-bold hover:text-sky-300 transition flex items-center gap-1">
                   <Shield size={16} /> Painel Admin
                 </Link>
@@ -97,7 +97,7 @@ export const Layout: React.FC = () => {
           {isMobileMenuOpen && (
             <div className="md:hidden px-6 pt-2 pb-4 space-y-2 bg-slate-900 border-b border-slate-800">
               <button onClick={() => scrollToSection('about')} className="block w-full text-left py-2 text-slate-300 hover:text-sky-400">Sobre</button>
-              
+
               {!session && (
                 <>
                   <button onClick={() => scrollToSection('divisions')} className="block w-full text-left py-2 text-slate-300 hover:text-sky-400">Divisões</button>
@@ -107,14 +107,14 @@ export const Layout: React.FC = () => {
                 </>
               )}
 
-              {session && isOficial && (
+              {session && userRole && isOficial && (
                 <>
-                   <Link to="/intel-report" className="block py-2 text-slate-300 hover:text-sky-400" onClick={() => setIsMobileMenuOpen(false)}>Relatório</Link>
-                   <Link to="/admin" className="block py-2 text-slate-300 hover:text-sky-400" onClick={() => setIsMobileMenuOpen(false)}>Denúncias</Link>
+                  <Link to="/intel-report" className="block py-2 text-slate-300 hover:text-sky-400" onClick={() => setIsMobileMenuOpen(false)}>Relatório</Link>
+                  <Link to="/admin" className="block py-2 text-slate-300 hover:text-sky-400" onClick={() => setIsMobileMenuOpen(false)}>Denúncias</Link>
                 </>
               )}
 
-              {session && isAdmin && (
+              {session && userRole && isAdmin && (
                 <Link to="/admin" className="block py-2 text-sky-400 font-bold" onClick={() => setIsMobileMenuOpen(false)}>Painel Admin</Link>
               )}
 
