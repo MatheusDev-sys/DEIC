@@ -140,9 +140,10 @@ export const Layout: React.FC = () => {
         <footer className="bg-slate-950 border-t border-slate-800 py-8 mt-auto">
           <div className="container mx-auto px-6 text-center text-slate-500">
             <img src={IMAGES.LOGO_BRASIL} alt="Brasil Roleplay" className="h-16 w-auto mx-auto mb-4 opacity-70" />
-            <p>&copy; 2025 DEIC - Polícia Civil. Todos os direitos reservados no universo Brasil Roleplay.</p>
+            <p>&copy; 2026 DEIC - Polícia Civil. Todos os direitos reservados no universo Brasil Roleplay.</p>
             <p className="text-xs mt-2">Este site é uma obra de ficção e não possui ligação com instituições reais.</p>
             <p className="text-xs mt-2 text-slate-600">Desenvolvido por Matheus Dev</p>
+            <p className="text-xs mt-2 text-slate-600">Sempre pertencente a DEIC</p>
           </div>
         </footer>
       )}
